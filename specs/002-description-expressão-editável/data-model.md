@@ -24,10 +24,15 @@
 
 **Transições de Estado**:
 ```
-[Vazia] → [Digitando] → [Válida] → [Calculando] → [Resultado]
-    ↓         ↓           ↓           ↓            ↓
-[Inválida] ← [Digitando] ← [Válida] ← [Calculando] ← [Resultado]
+[Vazia] → [Digitando] → [Válida] → [Calculando] → [Resultado] → [Digitando]
+    ↓         ↓           ↓           ↓            ↓            ↓
+[Inválida] ← [Digitando] ← [Válida] ← [Calculando] ← [Resultado] ← [Digitando]
 ```
+
+**Comportamento de Substituição**:
+- Após cálculo (ENTER), o campo é substituído pelo resultado numérico
+- O resultado vira a nova expressão inicial para cálculos subsequentes
+- Histórico preserva a expressão original e o resultado
 
 ### 2. Histórico (History)
 

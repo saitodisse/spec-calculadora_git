@@ -44,7 +44,7 @@ Implementar campo de entrada editável para expressões matemáticas na calculad
 **Tipo de Projeto**: web (frontend + backend)  
 **Metas de Performance**: <200ms resposta de cálculo, interface responsiva mobile-first  
 **Restrições**: Acessibilidade WCAG 2.1, modo desenvolvimento com debug detalhado  
-**Escala/Escopo**: Calculadora individual com histórico persistente  
+**Escala/Escopo**: Calculadora individual com histórico persistente
 
 ## Verificação da Constituição
 
@@ -186,7 +186,7 @@ _Pré-requisito: research.md concluído_
    - Preservar adições manuais entre marcadores
    - Manter abaixo de 150 linhas para eficiência de tokens
 
-**Saída**: data-model.md, /contracts/*, testes falhando, quickstart.md, arquivo específico do agente
+**Saída**: data-model.md, /contracts/\*, testes falhando, quickstart.md, arquivo específico do agente
 
 ## Fase 2: Abordagem de Planejamento de Tarefas
 
@@ -223,10 +223,10 @@ _Estas fases estão além do escopo do comando /plan_
 
 _Preencher APENAS se a Verificação da Constituição tiver violações que precisem ser justificadas_
 
-| Violação                 | Por que é necessário  | Alternativa mais simples rejeitada porque    |
-| ------------------------ | --------------------- | -------------------------------------------- |
-| 2 projetos (frontend/backend) | Separação clara de responsabilidades | Projeto único seria acoplado demais |
-| Biblioteca calculator-core | Lógica independente da UI | Código direto no componente seria menos testável |
+| Violação                      | Por que é necessário                 | Alternativa mais simples rejeitada porque        |
+| ----------------------------- | ------------------------------------ | ------------------------------------------------ |
+| 2 projetos (frontend/backend) | Separação clara de responsabilidades | Projeto único seria acoplado demais              |
+| Biblioteca calculator-core    | Lógica independente da UI            | Código direto no componente seria menos testável |
 
 ## Rastreamento de Progresso
 

@@ -8,17 +8,19 @@
 
 ### 1. Padrões de Input Editável para Calculadoras Web
 
-**Decisão**: Input controlado com estado React, validação em tempo real, foco automático
+**Decisão**: Input controlado com estado React, validação em tempo real, foco automático, substituição por resultado
 
 **Justificativa**: 
 - Input controlado permite sincronização perfeita com botões da UI
 - Validação em tempo real melhora UX ao mostrar erros imediatamente
 - Foco automático garante que o usuário sempre possa digitar
+- Substituição por resultado permite continuidade de cálculos de forma intuitiva
 
 **Alternativas consideradas**:
 - Input não controlado: Menos controle sobre sincronização
 - Validação apenas no submit: UX pior, usuário descobre erro tarde
 - Foco manual: Usuário precisa clicar para começar a digitar
+- Manter expressão original: Confunde usuário, não permite continuidade natural
 
 ### 2. Sincronização entre Input Manual e Botões de UI
 
@@ -66,13 +68,21 @@
 
 ### Input Editável
 ```typescript
-// Padrão: Input controlado com validação
+// Padrão: Input controlado com validação e substituição por resultado
 const [expression, setExpression] = useState('');
 const [isValid, setIsValid] = useState(true);
 
 const handleExpressionChange = (value: string) => {
   setExpression(value);
   setIsValid(validateExpression(value));
+};
+
+const handleCalculate = async () => {
+  const result = await calculateExpression(expression);
+  // Substitui a expressão pelo resultado
+  setExpression(result.toString());
+  // Adiciona ao histórico
+  addToHistory(expression, result);
 };
 ```
 
