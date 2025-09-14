@@ -17,6 +17,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.0.0",
     "@prisma/client": "^6.16.1",
+    "@testing-library/user-event": "^14.6.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "lucide-react": "^0.294.0",
@@ -38,6 +39,7 @@
     "eslint": "^8.53.0",
     "eslint-config-next": "15.0.0",
     "jsdom": "^23.0.0",
+    "openapi-client-axios": "^7.7.0",
     "postcss": "^8.4.31",
     "prisma": "^6.16.1",
     "tailwindcss": "^3.3.5",

@@ -1,0 +1,439 @@
+openapi: 3.0.3
+info:
+  title: Calculator API
+  description: API para calculadora com expressão editável e histórico
+  version: 1.0.0
+  contact:
+    name: Calculator Team
+    email: dev@calculator.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://calculator.vercel.app/api
+    description: Production server
+
+paths:
+  /calculator/calculate:
+    post:
+      summary: Executa cálculo de expressão matemática
+      description: Calcula uma expressão matemática e retorna o resultado
+      operationId: calculateExpression
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalculateRequest'
+            examples:
+              simple:
+                summary: Cálculo simples
+                value:
+                  expression: "2 + 3 * 4"
+              complex:
+                summary: Cálculo complexo
+                value:
+                  expression: "(10 + 5) * 2 / 3"
+      responses:
+        '200':
+          description: Cálculo executado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculateResponse'
+              examples:
+                success:
+                  summary: Resultado do cálculo
+                  value:
+                    result: 14
+                    executionTime: 5
+                    expression: "2 + 3 * 4"
+        '400':
+          description: Expressão inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_expression:
+                  summary: Expressão inválida
+                  value:
+                    error: "INVALID_EXPRESSION"
+                    message: "Expressão contém caracteres inválidos"
+                    details: "Caractere 'x' não é permitido"
+        '429':
+          description: Rate limit excedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                rate_limit:
+                  summary: Rate limit excedido
+                  value:
+                    error: "RATE_LIMIT_EXCEEDED"
+                    message: "Muitas requisições. Tente novamente em 1 minuto"
+                    details: "Limite: 100 cálculos por minuto"
+
+  /calculator/history:
+    get:
+      summary: Obtém histórico de operações
+      description: Retorna o histórico de operações do usuário em formato JSON
+      operationId: getHistory
+      parameters:
+        - name: page
+          in: query
+          description: Número da página (começa em 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Número de entradas por página
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: userId
+          in: query
+          description: ID do usuário (opcional)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Histórico obtido com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
+              examples:
+                history:
+                  summary: Histórico de operações
+                  value:
+                    entries:
+                      - id: "clx1234567890"
+                        timestamp: "2025-01-14T10:30:00Z"
+                        expression: "2 + 3 * 4"
+                        result: 14
+                        executionTime: 5
+                        userId: "user123"
+                      - id: "clx1234567891"
+                        timestamp: "2025-01-14T10:29:00Z"
+                        expression: "10 / 2"
+                        result: 5
+                        executionTime: 3
+                        userId: "user123"
+                    pagination:
+                      page: 1
+                      limit: 20
+                      total: 2
+                      totalPages: 1
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acesso negado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Adiciona entrada ao histórico
+      description: Adiciona uma operação ao histórico do usuário
+      operationId: addToHistory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistoryEntryRequest'
+            examples:
+              add_entry:
+                summary: Adicionar entrada
+                value:
+                  expression: "2 + 3 * 4"
+                  result: 14
+                  executionTime: 5
+      responses:
+        '201':
+          description: Entrada adicionada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryEntryResponse'
+              examples:
+                created:
+                  summary: Entrada criada
+                  value:
+                    id: "clx1234567890"
+                    timestamp: "2025-01-14T10:30:00Z"
+                    expression: "2 + 3 * 4"
+                    result: 14
+                    executionTime: 5
+                    userId: "user123"
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /calculator/validate:
+    post:
+      summary: Valida expressão matemática
+      description: Valida uma expressão matemática sem executar o cálculo
+      operationId: validateExpression
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateRequest'
+            examples:
+              valid:
+                summary: Expressão válida
+                value:
+                  expression: "2 + 3 * 4"
+              invalid:
+                summary: Expressão inválida
+                value:
+                  expression: "2 + * 4"
+      responses:
+        '200':
+          description: Validação executada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateResponse'
+              examples:
+                valid:
+                  summary: Expressão válida
+                  value:
+                    isValid: true
+                    message: "Expressão válida"
+                invalid:
+                  summary: Expressão inválida
+                  value:
+                    isValid: false
+                    message: "Operador '*' sem operando à esquerda"
+                    position: 4
+
+components:
+  schemas:
+    CalculateRequest:
+      type: object
+      required:
+        - expression
+      properties:
+        expression:
+          type: string
+          description: Expressão matemática a ser calculada
+          example: "2 + 3 * 4"
+          minLength: 1
+          maxLength: 1000
+        userId:
+          type: string
+          description: ID do usuário (opcional)
+          example: "user123"
+
+    CalculateResponse:
+      type: object
+      required:
+        - result
+        - executionTime
+        - expression
+      properties:
+        result:
+          type: number
+          description: Resultado do cálculo
+          example: 14
+        executionTime:
+          type: integer
+          description: Tempo de execução em milissegundos
+          example: 5
+        expression:
+          type: string
+          description: Expressão original
+          example: "2 + 3 * 4"
+
+    HistoryEntryRequest:
+      type: object
+      required:
+        - expression
+        - result
+        - executionTime
+      properties:
+        expression:
+          type: string
+          description: Expressão matemática
+          example: "2 + 3 * 4"
+        result:
+          type: number
+          description: Resultado do cálculo
+          example: 14
+        executionTime:
+          type: integer
+          description: Tempo de execução em milissegundos
+          example: 5
+        userId:
+          type: string
+          description: ID do usuário (opcional)
+          example: "user123"
+
+    HistoryEntryResponse:
+      type: object
+      required:
+        - id
+        - timestamp
+        - expression
+        - result
+        - executionTime
+      properties:
+        id:
+          type: string
+          description: Identificador único da entrada
+          example: "clx1234567890"
+        timestamp:
+          type: string
+          format: date-time
+          description: Data/hora da operação
+          example: "2025-01-14T10:30:00Z"
+        expression:
+          type: string
+          description: Expressão matemática
+          example: "2 + 3 * 4"
+        result:
+          type: number
+          description: Resultado do cálculo
+          example: 14
+        executionTime:
+          type: integer
+          description: Tempo de execução em milissegundos
+          example: 5
+        userId:
+          type: string
+          description: ID do usuário
+          example: "user123"
+
+    HistoryResponse:
+      type: object
+      required:
+        - entries
+        - pagination
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryEntryResponse'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    PaginationInfo:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          description: Página atual
+          example: 1
+        limit:
+          type: integer
+          description: Entradas por página
+          example: 20
+        total:
+          type: integer
+          description: Total de entradas
+          example: 42
+        totalPages:
+          type: integer
+          description: Total de páginas
+          example: 3
+
+    ValidateRequest:
+      type: object
+      required:
+        - expression
+      properties:
+        expression:
+          type: string
+          description: Expressão matemática a ser validada
+          example: "2 + 3 * 4"
+          minLength: 1
+          maxLength: 1000
+
+    ValidateResponse:
+      type: object
+      required:
+        - isValid
+        - message
+      properties:
+        isValid:
+          type: boolean
+          description: Se a expressão é válida
+          example: true
+        message:
+          type: string
+          description: Mensagem de validação
+          example: "Expressão válida"
+        position:
+          type: integer
+          description: Posição do erro (se houver)
+          example: 4
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Código do erro
+          example: "INVALID_EXPRESSION"
+        message:
+          type: string
+          description: Mensagem de erro
+          example: "Expressão contém caracteres inválidos"
+        details:
+          type: string
+          description: Detalhes adicionais do erro
+          example: "Caractere 'x' não é permitido"
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp do erro
+          example: "2025-01-14T10:30:00Z"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: calculator
+    description: Operações da calculadora
+  - name: history
+    description: Histórico de operações
