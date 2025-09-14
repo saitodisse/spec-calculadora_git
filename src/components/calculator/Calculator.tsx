@@ -12,12 +12,14 @@ interface CalculatorProps {
   initialHistory?: HistoryTreeData;
   onHistoryChange?: (history: HistoryTreeData) => void;
   onExpressionChange?: (expression: string) => void;
+  externalExpression?: string;
 }
 
 export function Calculator({
   initialHistory,
   onHistoryChange,
   onExpressionChange,
+  externalExpression,
 }: CalculatorProps) {
   const { data: session } = useSession();
   const [expression, setExpression] = useState("");
@@ -35,6 +37,17 @@ export function Calculator({
       console.log("🔍 [Calculator] Initial history loaded:", initialHistory);
     }
   }, [session, initialHistory]);
+
+  // Sincronizar com mudanças externas na expressão (ex: clique no histórico)
+  useEffect(() => {
+    if (externalExpression !== undefined && externalExpression !== expression) {
+      setExpression(externalExpression);
+      
+      if (process.env.NODE_ENV === "development") {
+        console.debug("🔍 [Calculator] External expression changed:", externalExpression);
+      }
+    }
+  }, [externalExpression, expression]);
 
   const handleExpressionChange = (newExpression: string) => {
     setExpression(newExpression);

@@ -74,6 +74,7 @@ export default function HomePage() {
             initialHistory={history || undefined}
             onHistoryChange={setHistory}
             onExpressionChange={setCurrentExpression}
+            externalExpression={currentExpression}
           />
           <HistoryPanel
             history={history}
