@@ -1,0 +1,33 @@
+# Regras Gerais de Desenvolvimento
+
+Este documento define os princípios e regras de desenvolvimento inegociáveis para este projeto.
+
+## Princípios Fundamentais
+
+### 1. Test-Driven Development (TDD) - INEGOCIÁVEL
+
+- **Ciclo Obrigatório**: O desenvolvimento DEVE seguir estritamente o ciclo Red-Green-Refactor.
+  1.  **Red**: Escrever um teste que falha para a nova funcionalidade.
+  2.  **Green**: Escrever o código mínimo necessário para fazer o teste passar.
+  3.  **Refactor**: Refatorar o código para melhorar a qualidade sem alterar a funcionalidade.
+- **Proibido**: Nenhuma linha de código de implementação pode ser escrita antes que um teste correspondente que falhe tenha sido criado.
+
+### 2. Simplicidade (YAGNI - You Ain't Gonna Need It)
+
+- **Foco no Essencial**: Comece sempre com a solução mais simples possível que atenda aos requisitos atuais.
+- **Evite Complexidade Prematura**: Não adicione funcionalidades, padrões de design ou otimizações que não sejam estritamente necessárias _agora_. A complexidade deve ser justificada, não presumida.
+
+### 3. Lógica Core Desacoplada
+
+- **Separação de Responsabilidades**: A lógica de negócio principal (ex: `calculator-core`) DEVE ser implementada de forma independente do framework da UI (Next.js/React).
+- **Testabilidade**: A lógica core deve ser testável de forma isolada, sem depender de componentes da UI ou do DOM.
+
+### 4. TypeScript Estrito
+
+- **Tipagem Forte**: O modo `strict` do TypeScript é obrigatório.
+- **Sem `any`**: O uso do tipo `any` é proibido. Use `unknown` para tipagem segura quando o tipo for desconhecido, ou defina interfaces e tipos claros.
+
+### 5. Interface Responsiva e Acessível
+
+- **Mobile-First**: O design e a implementação devem priorizar a experiência em dispositivos móveis.
+- **Acessibilidade**: A interface DEVE seguir as diretrizes WCAG 2.1, garantindo que seja utilizável por todos, incluindo usuários de leitores de tela e navegação por teclado.
