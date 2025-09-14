@@ -6,51 +6,31 @@ Este documento descreve os passos para verificar manualmente a **User Story Prim
 
 ## Pré-requisitos
 
-- A aplicação deve estar em execução no ambiente de desenvolvimento (`npm run dev`).
-- O estado da calculadora deve estar zerado (sem histórico prévio).
+- Docker e Docker Compose devem estar instalados e em execução.
+- O ambiente local deve ser iniciado com `pnpm install` e `docker-compose up`.
+- A aplicação Next.js deve estar em execução com `pnpm dev`.
 
 ## Passos de Verificação
 
-### 1. Criar um Histórico Linear (Cenário Original)
+### 1. Acesso Não Autenticado
 
-1.  **Abra a aplicação** no navegador. O visor deve mostrar "0".
-2.  **Execute a sequência de operações**: `5`, `+`, `3`, `=`.
-    - **Resultado esperado**: O visor deve mostrar "8".
-3.  **Continue a sequência**: `*`, `2`, `=`.
-    - **Resultado esperado**: O visor deve mostrar "16".
-4.  **Abra a visualização do histórico**.
-    - **Resultado esperado**: Você deve ver um grafo linear: `(0) -> (8) -> (16)`. O nó `(16)` deve estar destacado como `HEAD`.
+1.  **Abra a aplicação** em uma janela anônima.
+2.  **Verifique a UI**: Um botão "Login com Google" deve estar visível. Uma mensagem deve informar que o progresso não será salvo.
+3.  **Use a calculadora**: Realize um cálculo, como `5 + 5 =`. O resultado `10` deve aparecer.
+4.  **Recarregue a página**:
+    - **Resultado esperado**: O histórico do cálculo anterior (`5 + 5 = 10`) **não** deve ser mantido. A calculadora deve voltar ao estado inicial.
 
-### 2. Navegar e Criar um Ramo (Cenário Corrigido)
+### 2. Login e Persistência
 
-1.  **Na visualização do histórico**, clique no nó que contém o resultado "8".
-    - **Resultado esperado**: O visor da calculadora deve ser atualizado para "8". O nó `(8)` agora deve estar destacado como `HEAD`. A interface deve indicar um estado de "HEAD Desanexado".
-2.  **Execute a operação de correção**: `-`, `1`, `=`.
-    - **Resultado esperado**: O visor deve mostrar "7".
-3.  **Verifique a visualização do histórico novamente**.
+1.  **Clique no botão "Login com Google"** e complete o fluxo de autenticação.
+2.  **Verifique a UI**: O botão de login deve ser substituído por um indicador de usuário logado (ex: avatar ou email).
+3.  **Realize um cálculo**: `100 / 4 =`. O resultado `25` deve aparecer.
+4.  **Feche a aba e abra novamente** (ou acesse de outro navegador/dispositivo e faça login).
+    - **Resultado esperado**: O histórico contendo o nó `"100 / 4 = 25"` DEVE ser carregado automaticamente.
 
-    - **Resultado esperado**: A árvore de histórico agora deve mostrar um ramo. O nó `(8)` deve ter dois filhos: `(16)` e `(7)`. O novo nó `(7)` deve estar destacado como o `HEAD` atual.
+### 3. Branching e Persistência
 
-    ```
-      (0) -> (8) -> (16)
-             \
-              -> (7)  <-- HEAD
-    ```
-
-### 3. Usar Parênteses
-
-1.  **A partir do estado inicial**, execute a expressão `(5 + 3) * 2 =`.
-    - **Resultado esperado**: O visor deve mostrar `16`. A ordem das operações deve ser respeitada.
-2.  **Verifique a visualização do histórico**.
-    - **Resultado esperado**: Um novo nó `"(5 + 3) * 2 = 16"` deve ser visível.
-
-### 4. Comparar os Cenários
-
-1.  **Na visualização do histórico**, clique no nó com o resultado "16".
-    - **Resultado esperado**: O visor deve ser atualizado para "16". O `HEAD` agora aponta para o nó `(16)`.
-2.  **Clique novamente no nó** com o resultado "7".
-    - **Resultado esperado**: O visor deve ser atualizado para "7". O `HEAD` agora aponta para o nó `(7)`.
-
-## Conclusão
-
-Ao final destes passos, você terá validado com sucesso a principal funcionalidade da calculadora: a capacidade de navegar no histórico, criar um novo ramo a partir de um ponto anterior e alternar facilmente entre as diferentes linhas de tempo para comparar resultados, cumprindo assim a User Story Primária.
+1.  **Com o histórico do passo anterior**, clique no nó `25` para ativá-lo.
+2.  **Crie um novo ramo**: A partir do `25`, calcule `* 2 =`. O resultado `50` deve aparecer.
+3.  **Recarregue a página**.
+    - **Resultado esperado**: A árvore de histórico completa, incluindo o novo ramo, deve ser restaurada, provando que as modificações também são persistidas.

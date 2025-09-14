@@ -60,18 +60,21 @@ Ao criar esta spec a partir de um prompt do usuário:
 
 ### User Story Primária
 
-Como um analista financeiro, eu quero realizar uma série de cálculos para uma projeção. Se eu descobrir um erro em um passo intermediário, quero poder voltar àquele ponto, corrigi-lo com um novo cálculo e continuar a partir dali em uma nova "linha do tempo", sem perder minha trilha de cálculo original, para que eu possa comparar os resultados de ambos os cenários (o original e o corrigido).
+Como um usuário registrado, eu quero que meu histórico de cálculos seja salvo na minha conta para que eu possa acessá-lo e continuá-lo de qualquer dispositivo, a qualquer momento.
 
 ### Cenários de Aceitação
 
-**Cenário: Criação de um Histórico Linear com Expressões**
-**Dado** que a calculadora está no estado inicial (valor 0).
-**Quando** o usuário executa a expressão `5 * 10 - 5 =`.
-**Então** o visor deve mostrar o resultado `45`.
-**E** a Árvore de Histórico deve conter um novo nó para a expressão `"5 * 10 - 5 = 45"`.
-**Quando** o usuário, a partir do resultado anterior, executa `+ 5 =`.
-**Então** o visor deve mostrar o resultado `50`.
-**E** a Árvore de Histórico deve conter um novo nó para a expressão `"45 + 5 = 50"`, que é filho do nó anterior.
+**Cenário: Acesso Não Autenticado**
+**Dado** que um usuário não está logado.
+**Quando** ele acessa a calculadora.
+**Então** ele pode usar a calculadora normalmente, mas uma mensagem deve indicar que o histórico não será salvo.
+**E** um botão "Login para Salvar" deve ser exibido.
+
+**Cenário: Login e Persistência do Histórico**
+**Dado** que um usuário faz login com sucesso usando sua conta do Google.
+**Quando** ele realiza uma série de cálculos.
+**Então** seu histórico de cálculos DEVE ser salvo automaticamente no banco de dados associado à sua conta.
+**E** ao fechar e reabrir o navegador (ou acessar de outro dispositivo), seu histórico completo é restaurado.
 
 **Cenário: Navegação e Criação de um Ramo (Branch)**
 **Dado** o histórico do cenário anterior.
@@ -100,7 +103,7 @@ Como um analista financeiro, eu quero realizar uma série de cálculos para uma 
 
 **Operações inválidas**: Uma operação inválida, como uma divisão por zero (n/0), não deve corromper o estado da aplicação. Tal operação não deve gerar um novo Nó de Cálculo. O estado HEAD deve permanecer no nó pai, e uma mensagem de erro apropriada deve ser exibida temporariamente no visor.
 
-**Persistência de dados**: O estado completo da aplicação deve ser persistido. Ao reabrir, a Árvore de Histórico completa, incluindo todos os nós, ramos, ponteiros nomeados e a posição exata do HEAD, deve ser restaurada para que o usuário possa continuar exatamente de onde parou.
+**Persistência de dados**: O estado completo da aplicação, incluindo a Árvore de Histórico, DEVE ser salvo em um banco de dados PostgreSQL associado à conta do usuário autenticado. Ao reabrir, o estado deve ser restaurado.
 
 **Complexidade visual**: A interface deve lidar com uma árvore de histórico muito complexa através de interações como zoom e pan (arrastar a visualização). Funcionalidades para colapsar e expandir ramos podem ser necessárias para gerenciar a complexidade visual.
 
@@ -168,9 +171,15 @@ Como um analista financeiro, eu quero realizar uma série de cálculos para uma 
 
 #### FR-PERSIST: Persistência de Dados
 
-**FR-PERSIST-001**: O sistema DEVE salvar automaticamente o estado completo da Árvore de Histórico quando o aplicativo for fechado.
+**FR-PERSIST-001**: O sistema DEVE salvar automaticamente o estado completo da Árvore de Histórico em um banco de dados PostgreSQL quando o aplicativo for fechado ou após cada operação bem-sucedida.
 
 **FR-PERSIST-002**: O sistema DEVE carregar automaticamente o estado salvo na inicialização do aplicativo.
+
+#### FR-AUTH: Autenticação de Usuário
+
+**FR-AUTH-001**: O sistema DEVE permitir que os usuários se autentiquem usando o provedor Google OAuth através do NextAuth.js.
+**FR-AUTH-002**: Apenas usuários autenticados DEVEM ter seu histórico de cálculos salvo no banco de dados.
+**FR-AUTH-003**: A interface DEVE exibir claramente o estado de autenticação do usuário (logado ou deslogado).
 
 ## Fora do Escopo (opcional)
 
@@ -182,7 +191,13 @@ As seguintes funcionalidades são explicitamente consideradas fora do escopo par
 
 ## Entidades-Chave (obrigatório)
 
-#### Entidade 1: Nó de Cálculo (CalculationNode)
+#### Entidade 1: Usuário (`User`)
+
+**Descrição**: Representa um usuário do sistema, gerenciado pelo NextAuth.js. A tabela no banco de dados conterá perfis de usuário.
+
+**Atributos**: `id`, `name`, `email`, `image` (padrão NextAuth).
+
+#### Entidade 2: Nó de Cálculo (CalculationNode)
 
 **Descrição**: Representa um único ponto imutável no histórico de cálculos, análogo a um commit no Git. Cada nó armazena um snapshot do estado da calculadora.
 
@@ -194,9 +209,9 @@ As seguintes funcionalidades são explicitamente consideradas fora do escopo par
 - **Expressao**: A expressão completa que foi avaliada para gerar o resultado (ex: "5 \* 10 - 5").
 - **ResultadoFinal**: O resultado numérico do cálculo.
 
-#### Entidade 2: Árvore de Histórico (HistoryTree)
+#### Entidade 3: Árvore de Histórico (HistoryTree)
 
-**Descrição**: A estrutura de dados principal que encapsula todo o estado da calculadora, análoga a um repository no Git.
+**Descrição**: A estrutura de dados principal que encapsula o histórico de um usuário. Cada usuário terá sua própria árvore.
 
 **Atributos-Chave**:
 

@@ -2,9 +2,40 @@
 
 Este documento define as principais entidades de dados para a feature da Calculadora com Histórico Ramificado, conforme extraído da [especificação](./spec.md).
 
-## Entidade 1: Nó de Cálculo (`CalculationNode`)
+## Entidade 1: Usuário (`User`)
 
-**Descrição**: Representa um único ponto imutável no histórico de cálculos, análogo a um `commit` no Git. Cada nó armazena um snapshot do estado da calculadora.
+**Descrição**: Representa um usuário do sistema. As tabelas de `User`, `Account`, `Session` e `VerificationToken` serão gerenciadas automaticamente pelo **NextAuth.js**. Nossa aplicação irá apenas se relacionar com a tabela `User`.
+
+## Entidade 2: Árvore de Histórico (`HistoryTree`)
+
+**Descrição**: A estrutura de dados principal que encapsula o histórico de cálculos de um único usuário. Cada usuário terá exatamente uma árvore de histórico. A estrutura interna (Nós, HEAD, Branches) será armazenada como um único objeto JSON no banco de dados para simplificar a persistência.
+
+### Atributos
+
+| Atributo    | Tipo            | Descrição                                                                                                   | Obrigatório |
+| :---------- | :-------------- | :---------------------------------------------------------------------------------------------------------- | :---------- |
+| `id`        | `string` (UUID) | Identificador único global para a árvore de histórico.                                                      | Sim         |
+| `userId`    | `string`        | Chave estrangeira que referencia o `id` da tabela `User` do NextAuth.                                       | Sim         |
+| `data`      | `JSON`          | Um campo do tipo JSON que armazena o objeto `HistoryTree` completo (contendo `nodes`, `head` e `branches`). | Sim         |
+| `updatedAt` | `DateTime`      | Data da última modificação, gerenciada automaticamente pelo ORM.                                            | Sim         |
+
+### Relações
+
+- Um `User` tem um `HistoryTree` (relação 1-para-1).
+
+### Interface TypeScript (para o campo `data`)
+
+```typescript
+interface HistoryTreeData {
+  nodes: Record<string, CalculationNode>;
+  head: string;
+  branches: Record<string, string>;
+}
+```
+
+## Entidade 3: Nó de Cálculo (`CalculationNode`)
+
+**Descrição**: Representa um único ponto imutável no histórico. Esta entidade **não é uma tabela separada** no banco de dados; ela faz parte do objeto JSON armazenado no campo `data` da `HistoryTree`.
 
 ### Atributos
 
@@ -28,32 +59,10 @@ interface CalculationNode {
 }
 ```
 
-## Entidade 2: Árvore de Histórico (`HistoryTree`)
-
-**Descrição**: A estrutura de dados principal que encapsula todo o estado da calculadora, análoga a um `repository` no Git.
-
-### Atributos
-
-| Atributo   | Tipo                              | Descrição                                                                               | Obrigatório |
-| :--------- | :-------------------------------- | :-------------------------------------------------------------------------------------- | :---------- |
-| `nodes`    | `Record<string, CalculationNode>` | Uma coleção de todos os objetos `CalculationNode`, indexados por seus IDs.              | Sim         |
-| `head`     | `string`                          | Uma referência para o `id` do `CalculationNode` que representa o estado ativo atual.    | Sim         |
-| `branches` | `Record<string, string>`          | Um dicionário que mapeia nomes de `Branches` (alias) para os IDs dos `CalculationNode`. | Sim         |
-
-### Interface TypeScript
-
-```typescript
-interface HistoryTree {
-  nodes: Record<string, CalculationNode>;
-  head: string;
-  branches: Record<string, string>;
-}
-```
-
 ## Regras de Validação e Transições de Estado
 
-- **Nó Raiz**: A árvore sempre será inicializada com um nó raiz (`id: 'root'`), `parentId: null`, `result: 0`.
-- **Imutabilidade**: Uma vez criado, um `CalculationNode` nunca deve ser modificado. Qualquer alteração no histórico resulta na criação de um novo nó.
-- **Divisão por Zero**: Uma operação que resulte em um erro (como divisão por zero) não criará um novo `CalculationNode`. O estado `head` permanecerá inalterado.
+- **Persistência**: O objeto `HistoryTreeData` só pode ser salvo para um `User` autenticado.
+- **Nó Raiz**: A árvore sempre será inicializada com um nó raiz (`id: 'root'`), `parentId: null`, `expression: '0'`, `result: 0`.
+- **Imutabilidade**: Uma vez criado, um `CalculationNode` nunca deve ser modificado. Qualquer alteração no histórico resulta na criação de um novo nó dentro do objeto JSON.
 - **HEAD**: O `head` deve sempre apontar para um `id` de um nó existente na coleção `nodes`.
 - **Branches**: Os nomes dos branches são únicos. Um `branch` sempre aponta para um `id` de um nó existente.

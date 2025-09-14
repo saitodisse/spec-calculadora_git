@@ -31,3 +31,26 @@ Este documento define os princípios e regras de desenvolvimento inegociáveis p
 
 - **Mobile-First**: O design e a implementação devem priorizar a experiência em dispositivos móveis.
 - **Acessibilidade**: A interface DEVE seguir as diretrizes WCAG 2.1, garantindo que seja utilizável por todos, incluindo usuários de leitores de tela e navegação por teclado.
+
+## Stack Tecnológica Principal
+
+A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a versão estável mais recente no momento do desenvolvimento.
+
+- **Linguagem**: TypeScript (modo `strict`)
+- **Framework**: Next.js (com App Router)
+- **Estilização**: Tailwind CSS
+- **Componentes UI**: Shadcn UI
+- **Testes**: ViTest (Unitários/Integração) + React Testing Library (Componentes) + Playwright (End-to-End)
+- **Gerenciamento de Tema**: `next-themes`
+- **Build Tool**: Turbopack (via Next.js)
+- **Deployment**: Vercel
+
+## Ambiente de Desenvolvimento
+
+- **Sistema Operacional**: O desenvolvimento e o deploy devem ser direcionados para um ambiente **Linux**.
+- **Gerenciador de Pacotes**: O projeto DEVE utilizar **PNPM** para gerenciamento de dependências. Todos os comandos (`pnpm install`, `pnpm dev`, `pnpm test`) devem usar `pnpm`. O comando de teste (`pnpm test`) deve ser configurado para executar os testes uma única vez, sem o modo de observação (watch mode), utilizando a flag `--run` (`vitest --run`).
+
+### Diretriz de Uso de Dependências
+
+- **Consulta Obrigatória**: Antes de iniciar QUALQUER tarefa que interaja com uma dessas bibliotecas, o desenvolvedor (ou a IA) DEVE consultar a documentação oficial mais recente para garantir o uso das APIs e padrões recomendados. Utilize o `Context7` para obter a documentação atualizada.
+- **Versões**: As versões exatas devem ser gerenciadas pelo `package.json`, mas o desenvolvimento deve se basear nas práticas da última versão estável.

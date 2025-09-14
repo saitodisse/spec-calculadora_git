@@ -1,71 +1,49 @@
-# Fase 0: Pesquisa de Tecnologia e Padrões
+# Fase 0: Pesquisa de Tecnologia e Arquitetura Full-Stack
 
-## 1. Padrões de Gerenciamento de Estado de Grafo em React/Next.js
+## 1. Estratégia de Banco de Dados e ORM
 
 ### Decisão
 
-Utilizaremos uma combinação de **React Context** com o hook `useReducer` para gerenciar o estado do grafo da calculadora. Para otimizar a performance e evitar re-renderizações desnecessárias em componentes que não precisam do estado completo, faremos uso de seletores (selectors) simples.
+Utilizaremos **PostgreSQL** como nosso banco de dados, orquestrado via **Docker Compose** para o ambiente de desenvolvimento local. A interação com o banco de dados será gerenciada pelo ORM **Prisma**.
 
 ### Justificativa
 
-- **Simplicidade**: `useReducer` é nativo do React e suficiente para a complexidade do nosso estado, evitando a necessidade de bibliotecas de terceiros como Redux ou Zustand, o que está alinhado com o princípio YAGNI.
-- **Performance**: O uso de `React.memo` em componentes e a implementação de seletores para consumir apenas partes específicas do estado (ex: apenas o resultado atual do HEAD) minimizarão o impacto nas re-renderizações.
-- **Imutabilidade**: A natureza do `useReducer` incentiva a imutabilidade, o que é crucial para a nossa estrutura de dados de "commits" (Nós de Cálculo), garantindo que o histórico nunca seja modificado diretamente.
+- **Robustez e Escalabilidade**: PostgreSQL é um banco de dados relacional poderoso e confiável, adequado para aplicações que podem crescer no futuro.
+- **Ambiente Consistente**: Docker Compose garante um ambiente de desenvolvimento local consistente e facilmente replicável, eliminando problemas de configuração entre diferentes máquinas.
+- **Segurança de Tipos e Produtividade**: Prisma oferece um cliente de banco de dados totalmente tipado, o que se alinha perfeitamente com nossa abordagem TypeScript-first. Ele simplifica as migrações de esquema e as consultas ao banco de dados.
 
 ### Alternativas Consideradas
 
-- **Redux Toolkit**: Poderoso, mas excessivo para a escala deste projeto. A configuração e o boilerplate adicionais introduziriam complexidade desnecessária.
-- **Zustand**: Mais leve que Redux, mas ainda assim uma dependência externa. A combinação de `useContext` e `useReducer` atinge o mesmo objetivo com ferramentas já disponíveis no ecossistema React.
+- **Drizzle ORM**: Uma alternativa mais leve e "closer-to-SQL", mas Prisma oferece um ecossistema mais maduro e ferramentas de desenvolvimento (como o Prisma Studio) que aceleram o trabalho.
+- **SQLite**: Ótimo para prototipagem rápida, mas menos robusto para uma aplicação com autenticação de usuários e potencial crescimento.
 
-## 2. Abordagem de Persistência no Local Storage
+## 2. Estratégia de Autenticação
 
 ### Decisão
 
-Criaremos um `PersistenceService` dedicado que encapsula toda a lógica de interação com o Local Storage. O estado da `HistoryTree` será serializado para JSON usando `JSON.stringify` antes de ser salvo e desserializado com `JSON.parse` ao ser carregado. A persistência ocorrerá de forma assíncrona após cada mudança de estado bem-sucedida para não bloquear a thread principal.
+Utilizaremos **NextAuth.js (v5)** para gerenciar a autenticação, configurada com o provedor **Google OAuth**.
 
 ### Justificativa
 
-- **Encapsulamento**: Isolar a lógica de persistência em um serviço desacopla o core da calculadora do mecanismo de armazenamento, facilitando testes e futuras mudanças (ex: migrar para IndexedDB).
-- **Segurança**: Envolver a desserialização em um bloco `try-catch` garantirá que a aplicação não quebre caso os dados no Local Storage estejam corrompidos ou em um formato inesperado.
-- **Performance**: A escrita assíncrona (ex: usando `setTimeout(..., 0)`) garante que a UI permaneça responsiva mesmo durante a operação de salvamento.
+- **Padrão da Indústria**: NextAuth.js é a solução de autenticação de fato para aplicações Next.js, oferecendo segurança, simplicidade e excelente integração com o framework.
+- **Experiência do Usuário**: O login social com o Google é conveniente e amplamente adotado, reduzindo a fricção para novos usuários.
+- **Gerenciamento de Sessão**: A biblioteca lida com todo o gerenciamento de sessões, tokens e segurança de forma automática.
+
+## 3. Estratégia de Renderização e Fetching de Dados
+
+### Decisão
+
+Priorizaremos **Server Components** do Next.js 15 sempre que possível, especialmente para carregar o histórico inicial do usuário. As interações do lado do cliente (como realizar um novo cálculo) serão tratadas com **Client Components** e **Server Actions** para persistir as mudanças no banco de dados.
+
+### Justificativa
+
+- **Performance**: O uso de Server Components reduz a quantidade de JavaScript enviado ao cliente, melhorando o tempo de carregamento inicial. O histórico do usuário é carregado no servidor e renderizado diretamente no HTML inicial.
+- **Segurança e Simplicidade**: Server Actions fornecem uma maneira segura e direta de executar código do lado do servidor a partir de componentes do cliente, eliminando a necessidade de criar endpoints de API manuais para cada operação de escrita.
 
 ### Alternativas Consideradas
 
-- **IndexedDB**: Mais robusto e adequado para grandes volumes de dados, mas o Local Storage é mais simples e perfeitamente adequado para o tamanho esperado do nosso estado (alguns kilobytes a megabytes, no máximo).
-- **Bibliotecas (ex: `localForage`)**: Adicionam uma camada de abstração útil, mas para uma simples operação de `getItem`/`setItem`, o custo de uma dependência adicional não se justifica.
+- **SPA (Single Page Application) com API REST**: A abordagem tradicional exigiria a criação e manutenção de uma API separada e um gerenciamento de estado do lado do cliente mais complexo (como React Query/SWR), o que o App Router do Next.js torna desnecessário.
 
-## 3. Estrutura de Projeto e Configuração da Stack
+## 4. Conclusão da Pesquisa
 
-### Decisão
-
-- **Estrutura**: Seguiremos a estrutura de diretórios proposta no `plan.md`, com o `App Router` do Next.js. A lógica de negócio (`calculator-core`) será separada da UI e dos serviços.
-- **Estilização**: Utilizaremos a CLI da Shadcn UI para adicionar componentes conforme necessário, mantendo o `tailwind.config.js` e `globals.css` como a base da estilização.
-- **Testes**: Configuraremos `vitest.config.ts` na raiz do projeto, integrando-o com o `tsconfig.json` do Next.js para suporte a aliases de caminho. O `React Testing Library` será usado para testes de componentes e integração.
-
-### Justificativa
-
-- **Boas Práticas**: A estrutura escolhida promove a separação de responsabilidades (SoC), tornando o código mais manutenível e testável.
-- **Eficiência**: A CLI da Shadcn UI acelera o desenvolvimento ao fornecer componentes acessíveis e customizáveis, baseados em Radix UI.
-- **Padrão da Indústria**: ViTest oferece uma alternativa rápida e compatível com a API do Jest, sendo uma escolha moderna e popular para projetos React.
-
-## 4. Estratégia de Avaliação de Expressões
-
-### Decisão
-
-Utilizaremos a biblioteca **`math.js`** para toda a lógica de parsing e avaliação de expressões matemáticas, encapsulada em um `ExpressionEvaluatorService`. Manteremos o conjunto completo de funcionalidades da biblioteca, sem restrições, mas focaremos a UI apenas nas operações matemáticas padrão.
-
-### Justificativa
-
-- **Segurança**: `math.js` possui um parser seguro que evita os riscos de segurança associados ao uso de `eval()` nativo do JavaScript.
-- **Robustez**: A biblioteca já lida com ordem de operações, parênteses e uma vasta gama de funções matemáticas, eliminando a necessidade de implementar um parser complexo.
-- **Manutenibilidade**: Encapsular a biblioteca em um serviço próprio permite que a lógica de avaliação seja testada de forma isolada e facilita futuras manutenções.
-
-### Estratégia de Manuseio de Erros
-
-- **Feedback Duplo**: Quando `math.js` lançar um erro de parsing (ex: expressão malformada), a aplicação irá:
-  1.  Exibir uma mensagem de erro clara e sutil abaixo do campo de entrada da expressão.
-  2.  Se a informação do erro permitir, destacar a porção da string da expressão que causou o erro, para guiar o usuário na correção.
-
-## 5. Conclusão da Pesquisa
-
-A pesquisa confirma que a stack tecnológica escolhida é adequada e que existem padrões bem estabelecidos para sua implementação. Nenhuma barreira técnica foi identificada. Estamos prontos para prosseguir com a Fase 1: Design & Contratos.
+A pesquisa define uma arquitetura full-stack robusta e moderna, utilizando ferramentas padrão da indústria que se integram perfeitamente com o ecossistema Next.js. A abordagem prioriza a segurança, a produtividade do desenvolvedor e a performance.
