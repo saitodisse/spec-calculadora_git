@@ -1,6 +1,6 @@
 # Plano de Tarefas: Calculadora com Histórico Ramificado (Full-Stack)
 
-**Branch**: `001-feature-branching-calculator`
+**Branch**: `001-site-git-calc`
 **Plano**: [./plan.md](./plan.md)
 **Spec**: [./spec.md](./spec.md)
 

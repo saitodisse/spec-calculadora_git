@@ -1,6 +1,6 @@
 # Especificação da Feature: Calculadora com Histórico Ramificado
 
-**Branch da Feature**: `001-feature-branching-calculator`  
+**Branch da Feature**: `001-site-git-calc`  
 **Criada em**: 2024-10-27  
 **Status**: Aprovado para Planejamento  
 **Entrada**: Descrição do usuário: "crie um especificação para criar uma calculadora com histórico. Dessa forma poderia voltar nos calculos anteriores mudando o estado."

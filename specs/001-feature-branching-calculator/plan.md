@@ -1,7 +1,7 @@
 # Plano de Implementação: Calculadora com Histórico Ramificado (Full-Stack)
 
-**Branch**: `001-feature-branching-calculator` | **Data**: 2025-09-14 | **Spec**: [./spec.md](./spec.md)
-**Entrada**: Especificação da feature em `/specs/001-feature-branching-calculator/spec.md`
+**Branch**: `001-site-git-calc` | **Data**: 2025-09-14 | **Spec**: [./spec.md](./spec.md)
+**Entrada**: Especificação da feature em `/specs/001-site-git-calc/spec.md`
 
 ## Resumo
 
