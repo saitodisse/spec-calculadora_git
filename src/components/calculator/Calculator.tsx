@@ -34,6 +34,72 @@ export function Calculator({
     }
   }, [session, initialHistory]);
 
+  const handleExpressionChange = (newExpression: string) => {
+    setExpression(newExpression);
+    
+    if (process.env.NODE_ENV === "development") {
+      console.debug("🔍 [Calculator] Expression changed:", newExpression);
+    }
+  };
+
+  const handleCalculate = async () => {
+    if (!expression) return;
+
+    try {
+      if (process.env.NODE_ENV === "development") {
+        console.debug("🔍 [Calculator] Calculating expression:", expression);
+      }
+
+      // Usar nossa nova API de cálculo
+      const calculationResult = CalculatorCore.calculate(expression);
+      setResult(calculationResult.result);
+
+      // Substituir expressão pelo resultado (comportamento da feature)
+      setExpression(calculationResult.result.toString());
+
+      // Adicionar ao histórico local
+      const newHistoryEntry = {
+        id: `calc_${Date.now()}`,
+        parentId: localHistory?.head || null,
+        timestamp: Date.now(),
+        expression: expression,
+        result: calculationResult.result,
+      };
+
+      const updatedHistory: HistoryTreeData = {
+        nodes: {
+          ...(localHistory?.nodes || {}),
+          [newHistoryEntry.id]: newHistoryEntry,
+        },
+        head: newHistoryEntry.id,
+        branches: localHistory?.branches || {},
+      };
+
+      setLocalHistory(updatedHistory);
+      onHistoryChange?.(updatedHistory);
+
+      if (process.env.NODE_ENV === "development") {
+        console.debug("🔍 [Calculator] Added to history:", newHistoryEntry);
+        console.debug("🔍 [Calculator] Updated history state:", updatedHistory);
+      }
+
+      // Salvar no servidor se autenticado
+      if (isAuthenticated) {
+        try {
+          await saveHistory(updatedHistory);
+          if (process.env.NODE_ENV === "development") {
+            console.debug("🔍 [Calculator] History saved to server successfully");
+          }
+        } catch (error) {
+          console.error("🔍 [Calculator] Failed to save history:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Calculator error:", error);
+      // TODO: Mostrar erro para o usuário
+    }
+  };
+
   const handleButtonClick = async (value: string) => {
     try {
       let newExpression = expression;
@@ -47,72 +113,17 @@ export function Calculator({
           setResult(0);
           break;
         case "=":
-          if (newExpression) {
-            if (process.env.NODE_ENV === "development") {
-              console.log(
-                "🔍 [Calculator] Calculating expression:",
-                newExpression
-              );
-            }
-
-            // Usar nossa nova API de cálculo
-            const calculationResult = CalculatorCore.calculate(newExpression);
-            setResult(calculationResult.result);
-
-            // Substituir expressão pelo resultado (comportamento da feature)
-            setExpression(calculationResult.result.toString());
-
-            // Adicionar ao histórico local
-            const newHistoryEntry = {
-              id: `calc_${Date.now()}`,
-              parentId: localHistory?.head || null,
-              timestamp: Date.now(),
-              expression: newExpression,
-              result: calculationResult.result,
-            };
-
-            const updatedHistory: HistoryTreeData = {
-              nodes: {
-                ...(localHistory?.nodes || {}),
-                [newHistoryEntry.id]: newHistoryEntry,
-              },
-              head: newHistoryEntry.id,
-              branches: localHistory?.branches || {},
-            };
-
-            setLocalHistory(updatedHistory);
-            onHistoryChange?.(updatedHistory);
-
-            if (process.env.NODE_ENV === "development") {
-              console.log("🔍 [Calculator] Added to history:", newHistoryEntry);
-              console.log(
-                "🔍 [Calculator] Updated history state:",
-                updatedHistory
-              );
-            }
-
-            // Salvar no servidor se autenticado
-            if (isAuthenticated) {
-              try {
-                await saveHistory(updatedHistory);
-                if (process.env.NODE_ENV === "development") {
-                  console.log(
-                    "🔍 [Calculator] History saved to server successfully"
-                  );
-                }
-              } catch (error) {
-                console.error("🔍 [Calculator] Failed to save history:", error);
-              }
-            }
-          }
-          break;
+          await handleCalculate();
+          return; // Não atualizar expression aqui, handleCalculate já faz isso
         default:
           newExpression += value;
           break;
       }
 
-      if (value !== "=") {
-        setExpression(newExpression);
+      setExpression(newExpression);
+      
+      if (process.env.NODE_ENV === "development") {
+        console.debug("🔍 [Calculator] Button clicked:", value, "New expression:", newExpression);
       }
     } catch (error) {
       console.error("Calculator error:", error);
@@ -133,6 +144,8 @@ export function Calculator({
       <CalculatorDisplay
         expression={expression}
         result={result}
+        onExpressionChange={handleExpressionChange}
+        onCalculate={handleCalculate}
         className="mb-4"
       />
 
