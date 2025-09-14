@@ -4,11 +4,12 @@ import { useState } from "react";
 import { HistoryTreeData } from "@/types/calculator";
 import { Button } from "@/components/ui/button";
 import { BranchList } from "./BranchList";
+import { HistoryTree } from "./HistoryTree";
 
 interface HistoryPanelProps {
   history: HistoryTreeData | null;
   onHistoryItemClick?: (expression: string) => void;
-  onBranchName?: (branchName: string) => void;
+  onBranchName?: (branchName: string, nodeId: string) => void;
   onBranchSelect?: (nodeId: string) => void;
   onBranchRename?: (branchName: string, nodeId: string) => void;
   className?: string;
@@ -32,6 +33,7 @@ export function HistoryPanel({
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [branchName, setBranchName] = useState("");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'tree'>('list');
 
   // Converter o histórico em árvore para uma lista linear para exibição
   const getHistoryEntries = (tree: HistoryTreeData): HistoryEntry[] => {
@@ -88,13 +90,13 @@ export function HistoryPanel({
   };
 
   const handleBranchNameSubmit = () => {
-    if (branchName.trim() && onBranchName) {
-      onBranchName(branchName.trim());
+    if (branchName.trim() && onBranchName && selectedNodeId) {
+      onBranchName(branchName.trim(), selectedNodeId);
       setBranchName("");
       setShowBranchModal(false);
 
       if (process.env.NODE_ENV === "development") {
-        console.debug("🔍 [HistoryPanel] Branch named:", branchName.trim());
+        console.debug("🔍 [HistoryPanel] Branch named:", branchName.trim(), "for node:", selectedNodeId);
       }
     }
   };
@@ -118,16 +120,38 @@ export function HistoryPanel({
         <h3 className="text-lg font-semibold text-gray-800">
           📊 Histórico de Cálculos
         </h3>
-        {history && Object.keys(history.nodes).length > 0 && (
-          <Button
-            onClick={() => setShowBranchModal(true)}
-            variant="outline"
-            size="sm"
-            className="text-xs"
-          >
-            🌿 Nomear Branch
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Botões de visualização */}
+          <div className="flex border border-gray-300 rounded">
+            <Button
+              onClick={() => setViewMode('list')}
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              className="text-xs rounded-r-none"
+            >
+              📋 Lista
+            </Button>
+            <Button
+              onClick={() => setViewMode('tree')}
+              variant={viewMode === 'tree' ? 'default' : 'ghost'}
+              size="sm"
+              className="text-xs rounded-l-none"
+            >
+              🌳 Árvore
+            </Button>
+          </div>
+          
+          {history && Object.keys(history.nodes).length > 0 && selectedNodeId && (
+            <Button
+              onClick={() => setShowBranchModal(true)}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              🌿 Nomear Branch
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Branch List */}
@@ -141,50 +165,63 @@ export function HistoryPanel({
         </div>
       )}
 
-      {entries.length === 0 ? (
-        <div className="text-gray-500 text-sm text-center py-8">
-          <p>Nenhum cálculo realizado ainda.</p>
-          <p className="mt-2 text-xs">
-            Faça alguns cálculos para ver o histórico aqui.
-          </p>
-        </div>
-      ) : (
-        <div className="max-h-80 overflow-y-auto border border-gray-200 rounded">
-          <div className="divide-y divide-gray-100">
-            {entries.map((entry, index) => (
-              <div
-                key={entry.id}
-                onClick={() => handleItemClick(entry.expression, entry.id)}
-                className={`
-                  px-3 py-2 transition-colors flex items-center justify-between cursor-pointer
-                  ${selectedNodeId === entry.id 
-                    ? "bg-blue-100 border-l-4 border-blue-500" 
-                    : "hover:bg-gray-50"
-                  }
-                `}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="font-mono text-sm text-gray-800 truncate">
-                    {entry.expression} = {entry.result}
+      {viewMode === 'list' ? (
+        entries.length === 0 ? (
+          <div className="text-gray-500 text-sm text-center py-8">
+            <p>Nenhum cálculo realizado ainda.</p>
+            <p className="mt-2 text-xs">
+              Faça alguns cálculos para ver o histórico aqui.
+            </p>
+          </div>
+        ) : (
+          <div className="max-h-80 overflow-y-auto border border-gray-200 rounded">
+            <div className="divide-y divide-gray-100">
+              {entries.map((entry, index) => (
+                <div
+                  key={entry.id}
+                  onClick={() => handleItemClick(entry.expression, entry.id)}
+                  className={`
+                    px-3 py-2 transition-colors flex items-center justify-between cursor-pointer
+                    ${selectedNodeId === entry.id 
+                      ? "bg-blue-100 border-l-4 border-blue-500" 
+                      : "hover:bg-gray-50"
+                    }
+                  `}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono text-sm text-gray-800 truncate">
+                      {entry.expression} = {entry.result}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                    {selectedNodeId === entry.id && (
+                      <span className="text-xs bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded">
+                        Selecionado
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-500">
+                      #{entries.length - index}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {new Date(entry.timestamp).toLocaleTimeString()}
+                    </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                  {selectedNodeId === entry.id && (
-                    <span className="text-xs bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded">
-                      Selecionado
-                    </span>
-                  )}
-                  <span className="text-xs text-gray-500">
-                    #{entries.length - index}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {new Date(entry.timestamp).toLocaleTimeString()}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )
+      ) : (
+        <HistoryTree
+          history={history}
+          onNodeSelect={(nodeId) => {
+            const node = history?.nodes[nodeId];
+            if (node) {
+              handleItemClick(node.expression, nodeId);
+            }
+          }}
+          selectedNodeId={selectedNodeId}
+        />
       )}
 
       {history && (

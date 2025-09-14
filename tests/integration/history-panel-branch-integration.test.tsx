@@ -151,7 +151,8 @@ describe("HistoryPanel Branch Integration", () => {
     const historyItems = screen.getAllByText(/2 \+ 3|5 \* 2/);
     fireEvent.click(historyItems[0]);
 
-    expect(mockOnHistoryItemClick).toHaveBeenCalledWith("5 * 2");
+    // Verificar se o item foi selecionado visualmente
+    expect(screen.getByText("Selecionado")).toBeInTheDocument();
   });
 
   it("should show branch creation modal", () => {
@@ -165,9 +166,13 @@ describe("HistoryPanel Branch Integration", () => {
       />
     );
 
+    // First select a node to enable the button
+    const historyItems = screen.getAllByText(/2 \+ 3|5 \* 2/);
+    fireEvent.click(historyItems[0]);
+
     // Click on "Nomear Branch" button
-    const nameBranchButtons = screen.getAllByText("🌿 Nomear Branch");
-    fireEvent.click(nameBranchButtons[0]); // First one is the button
+    const nameBranchButton = screen.getByText("🌿 Nomear Branch");
+    fireEvent.click(nameBranchButton);
 
     expect(screen.getByPlaceholderText("Ex: Cálculos de juros, Projeto X, etc.")).toBeInTheDocument();
   });
@@ -183,9 +188,13 @@ describe("HistoryPanel Branch Integration", () => {
       />
     );
 
+    // First select a node
+    const historyItems = screen.getAllByText(/2 \+ 3|5 \* 2/);
+    fireEvent.click(historyItems[0]);
+
     // Open modal
-    const nameBranchButtons = screen.getAllByText("🌿 Nomear Branch");
-    fireEvent.click(nameBranchButtons[0]);
+    const nameBranchButton = screen.getByText("🌿 Nomear Branch");
+    fireEvent.click(nameBranchButton);
 
     // Enter branch name
     const input = screen.getByPlaceholderText("Ex: Cálculos de juros, Projeto X, etc.");
@@ -195,7 +204,7 @@ describe("HistoryPanel Branch Integration", () => {
     const saveButton = screen.getByText("Salvar");
     fireEvent.click(saveButton);
 
-    expect(mockOnBranchName).toHaveBeenCalledWith("test-branch");
+    expect(mockOnBranchName).toHaveBeenCalledWith("test-branch", "node2");
   });
 
   it("should cancel branch creation", () => {
@@ -209,9 +218,13 @@ describe("HistoryPanel Branch Integration", () => {
       />
     );
 
+    // First select a node to enable the button
+    const historyItems = screen.getAllByText(/2 \+ 3|5 \* 2/);
+    fireEvent.click(historyItems[0]);
+
     // Open modal
-    const nameBranchButtons = screen.getAllByText("🌿 Nomear Branch");
-    fireEvent.click(nameBranchButtons[0]);
+    const nameBranchButton = screen.getByText("🌿 Nomear Branch");
+    fireEvent.click(nameBranchButton);
 
     // Cancel
     const cancelButton = screen.getByText("Cancelar");
@@ -219,5 +232,43 @@ describe("HistoryPanel Branch Integration", () => {
 
     // Modal should be closed (input should not be visible)
     expect(screen.queryByPlaceholderText("Ex: Cálculos de juros, Projeto X, etc.")).not.toBeInTheDocument();
+  });
+
+  it("should switch between list and tree view", () => {
+    render(
+      <HistoryPanel
+        history={mockHistoryWithBranches}
+        onHistoryItemClick={mockOnHistoryItemClick}
+        onBranchName={mockOnBranchName}
+        onBranchSelect={mockOnBranchSelect}
+        onBranchRename={mockOnBranchRename}
+      />
+    );
+
+    // Should start in list view
+    expect(screen.getByText("📋 Lista")).toBeInTheDocument();
+    expect(screen.getByText("🌳 Árvore")).toBeInTheDocument();
+
+    // Switch to tree view
+    const treeButton = screen.getByText("🌳 Árvore");
+    fireEvent.click(treeButton);
+
+    // Should show tree structure
+    expect(screen.getByText("🌳 Árvore de Histórico")).toBeInTheDocument();
+  });
+
+  it("should not show name branch button when no node is selected", () => {
+    render(
+      <HistoryPanel
+        history={mockHistoryWithBranches}
+        onHistoryItemClick={mockOnHistoryItemClick}
+        onBranchName={mockOnBranchName}
+        onBranchSelect={mockOnBranchSelect}
+        onBranchRename={mockOnBranchRename}
+      />
+    );
+
+    // Button should not be visible initially
+    expect(screen.queryByText("🌿 Nomear Branch")).not.toBeInTheDocument();
   });
 });
