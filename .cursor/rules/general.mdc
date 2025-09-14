@@ -59,36 +59,42 @@ A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a vers
 ### Configurações Específicas do Projeto
 
 #### Banco de Dados
+
 - **PostgreSQL 15** via Docker Compose na porta **5433**
 - **Prisma ORM** com schema configurado para NextAuth + HistoryTree
 - **Migrações**: Comandos `pnpm db:migrate`, `pnpm db:generate`, `pnpm db:studio`
 - **URL de Conexão**: `DATABASE_URL` no `.env.local`
 
 #### Autenticação
+
 - **NextAuth.js v5** com Prisma Adapter
 - **Google OAuth Provider** configurado
 - **Sessões** gerenciadas via banco de dados
 - **Rotas**: `/api/auth/[...nextauth]`
 
 #### Testes
+
 - **ViTest**: Configurado com jsdom, globals habilitado, setup em `tests/setup.ts`
 - **Playwright**: Configurado para Chromium, timeout de 30s, servidor automático
 - **React Testing Library**: Para testes de componentes
 - **Comandos**: `pnpm test`, `pnpm test:e2e`, `pnpm test:e2e:headed`
 
 #### TypeScript
+
 - **Modo Strict**: Habilitado no `tsconfig.json`
 - **Path Mapping**: `@/*` mapeado para `./src/*`
 - **Target**: ES5 com libs DOM e ES6
 - **JSX**: Preserve mode para Next.js
 
 #### Tailwind CSS
+
 - **Tema Shadcn UI**: Configurado com variáveis CSS customizadas
 - **Cores**: Sistema de cores HSL com variáveis CSS
 - **Border Radius**: Sistema de raios customizáveis
 - **Content**: Configurado para `src/` directory
 
 #### Estrutura do Projeto
+
 ```
 src/
 ├── app/                 # Next.js App Router
@@ -144,6 +150,7 @@ prisma/
 ## Comandos de Desenvolvimento
 
 ### Setup Inicial
+
 ```bash
 # Instalar dependências
 pnpm install
@@ -159,6 +166,7 @@ pnpm db:generate
 ```
 
 ### Desenvolvimento
+
 ```bash
 # Servidor de desenvolvimento
 pnpm dev
@@ -174,6 +182,7 @@ pnpm lint
 ```
 
 ### Banco de Dados
+
 ```bash
 # Studio do Prisma
 pnpm db:studio
@@ -188,12 +197,14 @@ pnpm db:migrate
 ## Features Implementadas
 
 ### 001-site-git-calc
+
 - ✅ Calculadora com histórico ramificado
 - ✅ Autenticação Google via NextAuth
 - ✅ Persistência de dados via PostgreSQL
 - ✅ Interface responsiva com Shadcn UI
 
 ### 002-description-expressão-editável
+
 - ✅ Campo de entrada editável para expressões
 - ✅ Sincronização entre input manual e botões
 - ✅ Histórico em formato texto simples

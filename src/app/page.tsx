@@ -20,7 +20,7 @@ export default function HomePage() {
         try {
           const userHistory = await getHistory();
           setHistory(userHistory);
-          
+
           if (process.env.NODE_ENV === "development") {
             console.log("🔍 [HomePage] Loaded user history:", userHistory);
           }
@@ -30,7 +30,7 @@ export default function HomePage() {
       } else {
         // Limpar histórico quando usuário faz logout
         setHistory(null);
-        
+
         if (process.env.NODE_ENV === "development") {
           console.log("🔍 [HomePage] Cleared history (user logged out)");
         }
