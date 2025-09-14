@@ -1,16 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calculator } from "@/components/calculator/Calculator";
 import { HistoryPanel } from "@/components/calculator/HistoryPanel";
 import { SignInButton, SignOutButton } from "@/components/auth";
 import { HistoryTreeData } from "@/types/calculator";
 import { useSession } from "next-auth/react";
+import { getHistory } from "@/actions/history";
 
 export default function HomePage() {
   const { data: session } = useSession();
   const [history, setHistory] = useState<HistoryTreeData | null>(null);
   const [currentExpression, setCurrentExpression] = useState<string>("");
+
+  // Carregar histórico quando o usuário fizer login
+  useEffect(() => {
+    const loadUserHistory = async () => {
+      if (session?.user) {
+        try {
+          const userHistory = await getHistory();
+          setHistory(userHistory);
+          
+          if (process.env.NODE_ENV === "development") {
+            console.log("🔍 [HomePage] Loaded user history:", userHistory);
+          }
+        } catch (error) {
+          console.error("🔍 [HomePage] Failed to load user history:", error);
+        }
+      } else {
+        // Limpar histórico quando usuário faz logout
+        setHistory(null);
+        
+        if (process.env.NODE_ENV === "development") {
+          console.log("🔍 [HomePage] Cleared history (user logged out)");
+        }
+      }
+    };
+
+    loadUserHistory();
+  }, [session?.user]);
 
   const handleBranchName = (branchName: string) => {
     if (history) {
