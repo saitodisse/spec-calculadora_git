@@ -41,11 +41,13 @@ Este documento define os princípios e regras de desenvolvimento inegociáveis p
 A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a versão estável mais recente no momento do desenvolvimento.
 
 - **Linguagem**: TypeScript (modo `strict`)
-- **Framework**: Next.js (com App Router)
+- **Framework**: Next.js 15 (com App Router)
 - **Estilização**: Tailwind CSS
 - **Componentes UI**: Shadcn UI
 - **Testes**: ViTest (Unitários/Integração) + React Testing Library (Componentes) + Playwright (End-to-End)
-- **Gerenciamento de Tema**: `next-themes`
+- **Autenticação**: NextAuth.js v5 com Google Provider
+- **Banco de Dados**: PostgreSQL via Prisma ORM
+- **Containerização**: Docker Compose
 - **Build Tool**: Turbopack (via Next.js)
 - **Deployment**: Vercel
 
@@ -53,6 +55,64 @@ A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a vers
 
 - **Sistema Operacional**: O desenvolvimento e o deploy devem ser direcionados para um ambiente **Linux**.
 - **Gerenciador de Pacotes**: O projeto DEVE utilizar **PNPM** para gerenciamento de dependências. Todos os comandos (`pnpm install`, `pnpm dev`, `pnpm test`) devem usar `pnpm`. O comando de teste (`pnpm test`) deve ser configurado para executar os testes uma única vez, sem o modo de observação (watch mode), utilizando a flag `--run` (`vitest --run`).
+
+### Configurações Específicas do Projeto
+
+#### Banco de Dados
+- **PostgreSQL 15** via Docker Compose na porta **5433**
+- **Prisma ORM** com schema configurado para NextAuth + HistoryTree
+- **Migrações**: Comandos `pnpm db:migrate`, `pnpm db:generate`, `pnpm db:studio`
+- **URL de Conexão**: `DATABASE_URL` no `.env.local`
+
+#### Autenticação
+- **NextAuth.js v5** com Prisma Adapter
+- **Google OAuth Provider** configurado
+- **Sessões** gerenciadas via banco de dados
+- **Rotas**: `/api/auth/[...nextauth]`
+
+#### Testes
+- **ViTest**: Configurado com jsdom, globals habilitado, setup em `tests/setup.ts`
+- **Playwright**: Configurado para Chromium, timeout de 30s, servidor automático
+- **React Testing Library**: Para testes de componentes
+- **Comandos**: `pnpm test`, `pnpm test:e2e`, `pnpm test:e2e:headed`
+
+#### TypeScript
+- **Modo Strict**: Habilitado no `tsconfig.json`
+- **Path Mapping**: `@/*` mapeado para `./src/*`
+- **Target**: ES5 com libs DOM e ES6
+- **JSX**: Preserve mode para Next.js
+
+#### Tailwind CSS
+- **Tema Shadcn UI**: Configurado com variáveis CSS customizadas
+- **Cores**: Sistema de cores HSL com variáveis CSS
+- **Border Radius**: Sistema de raios customizáveis
+- **Content**: Configurado para `src/` directory
+
+#### Estrutura do Projeto
+```
+src/
+├── app/                 # Next.js App Router
+│   ├── api/            # API Routes (NextAuth, Calculator)
+│   └── page.tsx        # Página principal
+├── components/         # React Components
+│   ├── calculator/     # Componentes da calculadora
+│   ├── auth/          # Componentes de autenticação
+│   └── ui/            # Shadcn UI components
+├── core/              # Lógica de negócio (calculator-core)
+├── lib/               # Utilities (auth, prisma, utils)
+├── types/             # TypeScript type definitions
+└── actions/           # Server Actions
+
+tests/
+├── e2e/               # Playwright E2E tests
+├── integration/       # Integration tests
+├── unit/              # Unit tests
+└── contract/          # Contract tests
+
+prisma/
+├── schema.prisma      # Database schema
+└── migrations/        # Database migrations
+```
 
 ### Diretriz de Uso de Dependências
 
@@ -81,81 +141,77 @@ A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a vers
     - Atualiza o `research.md` com decisões sobre Prisma e Docker.
     ```
 
-# Regras Gerais de Desenvolvimento
+## Comandos de Desenvolvimento
 
-Este documento define os princípios e regras de desenvolvimento inegociáveis para este projeto.
+### Setup Inicial
+```bash
+# Instalar dependências
+pnpm install
 
-## Princípios Fundamentais
+# Iniciar banco de dados
+docker-compose up -d
 
-### 1. Test-Driven Development (TDD) - INEGOCIÁVEL
+# Executar migrações
+pnpm db:migrate
 
-- **Ciclo Obrigatório**: O desenvolvimento DEVE seguir estritamente o ciclo Red-Green-Refactor.
-  1.  **Red**: Escrever um teste que falha para a nova funcionalidade.
-  2.  **Green**: Escrever o código mínimo necessário para fazer o teste passar.
-  3.  **Refactor**: Refatorar o código para melhorar a qualidade sem alterar a funcionalidade.
-- **Proibido**: Nenhuma linha de código de implementação pode ser escrita antes que um teste correspondente que falhe tenha sido criado.
+# Gerar cliente Prisma
+pnpm db:generate
+```
 
-### 2. Simplicidade (YAGNI - You Ain't Gonna Need It)
+### Desenvolvimento
+```bash
+# Servidor de desenvolvimento
+pnpm dev
 
-- **Foco no Essencial**: Comece sempre com a solução mais simples possível que atenda aos requisitos atuais.
-- **Evite Complexidade Prematura**: Não adicione funcionalidades, padrões de design ou otimizações que não sejam estritamente necessárias _agora_. A complexidade deve ser justificada, não presumida.
+# Executar testes
+pnpm test
 
-### 3. Lógica Core Desacoplada
+# Testes E2E
+pnpm test:e2e
 
-- **Separação de Responsabilidades**: A lógica de negócio principal (ex: `calculator-core`) DEVE ser implementada de forma independente do framework da UI (Next.js/React).
-- **Testabilidade**: A lógica core deve ser testável de forma isolada, sem depender de componentes da UI ou do DOM.
+# Linting
+pnpm lint
+```
 
-### 4. TypeScript Estrito
+### Banco de Dados
+```bash
+# Studio do Prisma
+pnpm db:studio
 
-- **Tipagem Forte**: O modo `strict` do TypeScript é obrigatório.
-- **Sem `any`**: O uso do tipo `any` é proibido. Use `unknown` para tipagem segura quando o tipo for desconhecido, ou defina interfaces e tipos claros.
+# Reset do banco
+pnpm db:reset
 
-### 5. Interface Responsiva e Acessível
+# Nova migração
+pnpm db:migrate
+```
 
-- **Mobile-First**: O design e a implementação devem priorizar a experiência em dispositivos móveis.
-- **Acessibilidade**: A interface DEVE seguir as diretrizes WCAG 2.1, garantindo que seja utilizável por todos, incluindo usuários de leitores de tela e navegação por teclado.
+## Features Implementadas
 
-## Stack Tecnológica Principal
+### 001-site-git-calc
+- ✅ Calculadora com histórico ramificado
+- ✅ Autenticação Google via NextAuth
+- ✅ Persistência de dados via PostgreSQL
+- ✅ Interface responsiva com Shadcn UI
 
-A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a versão estável mais recente no momento do desenvolvimento.
+### 002-description-expressão-editável
+- ✅ Campo de entrada editável para expressões
+- ✅ Sincronização entre input manual e botões
+- ✅ Histórico em formato texto simples
+- ✅ Debug logging em modo desenvolvimento
+- ✅ Substituição de expressão por resultado após cálculo
 
-- **Linguagem**: TypeScript (modo `strict`)
-- **Framework**: Next.js (com App Router)
-- **Estilização**: Tailwind CSS
-- **Componentes UI**: Shadcn UI
-- **Testes**: ViTest (Unitários/Integração) + React Testing Library (Componentes) + Playwright (End-to-End)
-- **Gerenciamento de Tema**: `next-themes`
-- **Build Tool**: Turbopack (via Next.js)
-- **Deployment**: Vercel
+## Considerações de Segurança
 
-## Ambiente de Desenvolvimento
+- **Rate Limiting**: Implementado para cálculos (100/min por usuário)
+- **Validação Server-side**: Expressões validadas no backend
+- **Sanitização**: Input sanitizado antes do cálculo
+- **Autenticação**: Sessões seguras via NextAuth
+- **CORS**: Configurado para domínios permitidos
 
-- **Sistema Operacional**: O desenvolvimento e o deploy devem ser direcionados para um ambiente **Linux**.
-- **Gerenciador de Pacotes**: O projeto DEVE utilizar **PNPM** para gerenciamento de dependências. Todos os comandos (`pnpm install`, `pnpm dev`, `pnpm test`) devem usar `pnpm`. O comando de teste (`pnpm test`) deve ser configurado para executar os testes uma única vez, sem o modo de observação (watch mode), utilizando a flag `--run` (`vitest --run`).
+## Considerações de Performance
 
-### Diretriz de Uso de Dependências
-
-- **Consulta Obrigatória**: Antes de iniciar QUALQUER tarefa que interaja com uma dessas bibliotecas, o desenvolvedor (ou a IA) DEVE consultar a documentação oficial mais recente para garantir o uso das APIs e padrões recomendados. Utilize o `Context7` para obter a documentação atualizada.
-- **Versões**: As versões exatas devem ser gerenciadas pelo `package.json`, mas o desenvolvimento deve se basear nas práticas da última versão estável.
-
-## Workflow de Commits
-
-### 1. Commits Atômicos e Descritivos
-
-- **Frequência**: Ao final de CADA interação bem-sucedida com a IA que resultar em modificação ou criação de arquivos, um commit DEVE ser realizado.
-- **Qualidade da Mensagem**: Cada commit DEVE ter uma mensagem clara e descritiva, seguindo o padrão **Conventional Commits**.
-- **Estrutura**:
-
-  - **Header**: `type(scope): short description` (ex: `docs(spec): adiciona autenticação à user story`)
-  - **Body (Opcional, mas recomendado)**: Explica o _quê_ e o _porquê_ da mudança.
-  - **Exemplo**:
-
-    ```
-    docs(plan): atualiza arquitetura para full-stack
-
-    Refatora completamente o plano de implementação e o plano de tarefas para refletir a nova arquitetura com Next.js, PostgreSQL e NextAuth.
-
-    - Altera o `plan.md` para descrever a stack de backend.
-    - Reescreve o `tasks.md` com novas fases para setup de DB, auth e backend.
-    - Atualiza o `research.md` com decisões sobre Prisma e Docker.
-    ```
+- **Tempo de Resposta**: <200ms para cálculos simples
+- **Cache**: Histórico recente em cache (5 minutos)
+- **Paginação**: Histórico paginado (20 entradas por página)
+- **Lazy Loading**: Componentes carregados sob demanda
+- **Cleanup**: Job diário para remover entradas antigas
