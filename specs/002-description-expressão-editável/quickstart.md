@@ -75,9 +75,9 @@
 2. Digitar "2 + 3" no campo de entrada editável
 3. Pressionar Enter para calcular
 4. **Verificar que o campo de entrada agora mostra apenas "5" (resultado) no lugar da expressão "2 + 3"**
-5. Digitar " * 2" (campo deve mostrar "5 * 2")
+5. Digitar " _ 2" (campo deve mostrar "5 _ 2")
 6. Pressionar Enter para calcular
-7. **Verificar que o campo de entrada agora mostra apenas "10" (resultado) no lugar da expressão "5 * 2"**
+7. **Verificar que o campo de entrada agora mostra apenas "10" (resultado) no lugar da expressão "5 \* 2"**
 8. Verificar que o histórico contém ambas as operações em formato JSON
 
 **Resultado Esperado**:
