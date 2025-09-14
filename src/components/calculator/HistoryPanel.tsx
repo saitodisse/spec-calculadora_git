@@ -18,7 +18,12 @@ interface HistoryEntry {
   timestamp: number;
 }
 
-export function HistoryPanel({ history, onHistoryItemClick, onBranchName, className }: HistoryPanelProps) {
+export function HistoryPanel({
+  history,
+  onHistoryItemClick,
+  onBranchName,
+  className,
+}: HistoryPanelProps) {
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [branchName, setBranchName] = useState("");
 
@@ -48,9 +53,12 @@ export function HistoryPanel({ history, onHistoryItemClick, onBranchName, classN
   const handleItemClick = (expression: string) => {
     if (onHistoryItemClick) {
       onHistoryItemClick(expression);
-      
+
       if (process.env.NODE_ENV === "development") {
-        console.debug("🔍 [HistoryPanel] Item clicked, setting expression:", expression);
+        console.debug(
+          "🔍 [HistoryPanel] Item clicked, setting expression:",
+          expression
+        );
       }
     }
   };
@@ -60,7 +68,7 @@ export function HistoryPanel({ history, onHistoryItemClick, onBranchName, classN
       onBranchName(branchName.trim());
       setBranchName("");
       setShowBranchModal(false);
-      
+
       if (process.env.NODE_ENV === "development") {
         console.debug("🔍 [HistoryPanel] Branch named:", branchName.trim());
       }
@@ -74,7 +82,10 @@ export function HistoryPanel({ history, onHistoryItemClick, onBranchName, classN
 
   if (process.env.NODE_ENV === "development") {
     console.log("🔍 [HistoryPanel] Rendering with entries:", entries);
-    console.log("🔍 [HistoryPanel] Total nodes in history:", history ? Object.keys(history.nodes).length : 0);
+    console.log(
+      "🔍 [HistoryPanel] Total nodes in history:",
+      history ? Object.keys(history.nodes).length : 0
+    );
   }
 
   return (

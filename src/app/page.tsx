@@ -23,9 +23,14 @@ export default function HomePage() {
         },
       };
       setHistory(updatedHistory);
-      
+
       if (process.env.NODE_ENV === "development") {
-        console.debug("🔍 [HomePage] Branch created:", branchName, "at node:", history.head);
+        console.debug(
+          "🔍 [HomePage] Branch created:",
+          branchName,
+          "at node:",
+          history.head
+        );
       }
     }
   };
@@ -70,11 +75,11 @@ export default function HomePage() {
             onHistoryChange={setHistory}
             onExpressionChange={setCurrentExpression}
           />
-          <HistoryPanel 
-            history={history} 
+          <HistoryPanel
+            history={history}
             onHistoryItemClick={setCurrentExpression}
             onBranchName={handleBranchName}
-            className="w-80" 
+            className="w-80"
           />
         </main>
 

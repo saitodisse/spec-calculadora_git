@@ -39,7 +39,7 @@ export function Calculator({
   const handleExpressionChange = (newExpression: string) => {
     setExpression(newExpression);
     onExpressionChange?.(newExpression);
-    
+
     if (process.env.NODE_ENV === "development") {
       console.debug("🔍 [Calculator] Expression changed:", newExpression);
     }
