@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { HistoryTreeData } from "@/types/calculator";
+import { Button } from "@/components/ui/button";
 
 interface HistoryPanelProps {
   history: HistoryTreeData | null;
+  onHistoryItemClick?: (expression: string) => void;
+  onBranchName?: (branchName: string) => void;
   className?: string;
 }
 
@@ -14,7 +18,10 @@ interface HistoryEntry {
   timestamp: number;
 }
 
-export function HistoryPanel({ history, className }: HistoryPanelProps) {
+export function HistoryPanel({ history, onHistoryItemClick, onBranchName, className }: HistoryPanelProps) {
+  const [showBranchModal, setShowBranchModal] = useState(false);
+  const [branchName, setBranchName] = useState("");
+
   // Converter o histórico em árvore para uma lista linear para exibição
   const getHistoryEntries = (tree: HistoryTreeData): HistoryEntry[] => {
     const entries: HistoryEntry[] = [];
@@ -38,6 +45,33 @@ export function HistoryPanel({ history, className }: HistoryPanelProps) {
 
   const entries = history ? getHistoryEntries(history) : [];
 
+  const handleItemClick = (expression: string) => {
+    if (onHistoryItemClick) {
+      onHistoryItemClick(expression);
+      
+      if (process.env.NODE_ENV === "development") {
+        console.debug("🔍 [HistoryPanel] Item clicked, setting expression:", expression);
+      }
+    }
+  };
+
+  const handleBranchNameSubmit = () => {
+    if (branchName.trim() && onBranchName) {
+      onBranchName(branchName.trim());
+      setBranchName("");
+      setShowBranchModal(false);
+      
+      if (process.env.NODE_ENV === "development") {
+        console.debug("🔍 [HistoryPanel] Branch named:", branchName.trim());
+      }
+    }
+  };
+
+  const handleBranchNameCancel = () => {
+    setBranchName("");
+    setShowBranchModal(false);
+  };
+
   if (process.env.NODE_ENV === "development") {
     console.log("🔍 [HistoryPanel] Rendering with entries:", entries);
     console.log("🔍 [HistoryPanel] Total nodes in history:", history ? Object.keys(history.nodes).length : 0);
@@ -45,9 +79,21 @@ export function HistoryPanel({ history, className }: HistoryPanelProps) {
 
   return (
     <div className={`bg-white rounded-lg shadow-lg p-4 ${className}`}>
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        📊 Histórico de Cálculos
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-800">
+          📊 Histórico de Cálculos
+        </h3>
+        {history && Object.keys(history.nodes).length > 0 && (
+          <Button
+            onClick={() => setShowBranchModal(true)}
+            variant="outline"
+            size="sm"
+            className="text-xs"
+          >
+            🌿 Nomear Branch
+          </Button>
+        )}
+      </div>
 
       {entries.length === 0 ? (
         <div className="text-gray-500 text-sm text-center py-8">
@@ -62,7 +108,8 @@ export function HistoryPanel({ history, className }: HistoryPanelProps) {
             {entries.map((entry, index) => (
               <div
                 key={entry.id}
-                className="px-3 py-2 hover:bg-gray-50 transition-colors flex items-center justify-between"
+                onClick={() => handleItemClick(entry.expression)}
+                className="px-3 py-2 hover:bg-gray-50 transition-colors flex items-center justify-between cursor-pointer"
               >
                 <div className="flex-1 min-w-0">
                   <div className="font-mono text-sm text-gray-800 truncate">
@@ -87,6 +134,51 @@ export function HistoryPanel({ history, className }: HistoryPanelProps) {
         <div className="mt-4 pt-3 border-t border-gray-200">
           <div className="text-xs text-gray-500">
             Total: {Object.keys(history.nodes).length} nós na árvore
+          </div>
+        </div>
+      )}
+
+      {/* Modal para nomear branch */}
+      {showBranchModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              🌿 Nomear Branch
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Dê um nome para este branch do histórico de cálculos.
+            </p>
+            <input
+              type="text"
+              value={branchName}
+              onChange={(e) => setBranchName(e.target.value)}
+              placeholder="Ex: Cálculos de juros, Projeto X, etc."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleBranchNameSubmit();
+                } else if (e.key === "Escape") {
+                  handleBranchNameCancel();
+                }
+              }}
+            />
+            <div className="flex gap-2 justify-end">
+              <Button
+                onClick={handleBranchNameCancel}
+                variant="outline"
+                size="sm"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleBranchNameSubmit}
+                size="sm"
+                disabled={!branchName.trim()}
+              >
+                Salvar
+              </Button>
+            </div>
           </div>
         </div>
       )}

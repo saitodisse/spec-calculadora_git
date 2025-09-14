@@ -10,6 +10,25 @@ import { useSession } from "next-auth/react";
 export default function HomePage() {
   const { data: session } = useSession();
   const [history, setHistory] = useState<HistoryTreeData | null>(null);
+  const [currentExpression, setCurrentExpression] = useState<string>("");
+
+  const handleBranchName = (branchName: string) => {
+    if (history) {
+      // Criar um novo branch no histórico
+      const updatedHistory = {
+        ...history,
+        branches: {
+          ...history.branches,
+          [branchName]: history.head, // Associar o nome do branch ao nó atual
+        },
+      };
+      setHistory(updatedHistory);
+      
+      if (process.env.NODE_ENV === "development") {
+        console.debug("🔍 [HomePage] Branch created:", branchName, "at node:", history.head);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -49,8 +68,14 @@ export default function HomePage() {
           <Calculator
             initialHistory={history || undefined}
             onHistoryChange={setHistory}
+            onExpressionChange={setCurrentExpression}
           />
-          <HistoryPanel history={history} className="w-80" />
+          <HistoryPanel 
+            history={history} 
+            onHistoryItemClick={setCurrentExpression}
+            onBranchName={handleBranchName}
+            className="w-80" 
+          />
         </main>
 
         {!session?.user && (

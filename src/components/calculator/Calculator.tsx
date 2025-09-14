@@ -11,11 +11,13 @@ import { useSession } from "next-auth/react";
 interface CalculatorProps {
   initialHistory?: HistoryTreeData;
   onHistoryChange?: (history: HistoryTreeData) => void;
+  onExpressionChange?: (expression: string) => void;
 }
 
 export function Calculator({
   initialHistory,
   onHistoryChange,
+  onExpressionChange,
 }: CalculatorProps) {
   const { data: session } = useSession();
   const [expression, setExpression] = useState("");
@@ -36,7 +38,8 @@ export function Calculator({
 
   const handleExpressionChange = (newExpression: string) => {
     setExpression(newExpression);
-
+    onExpressionChange?.(newExpression);
+    
     if (process.env.NODE_ENV === "development") {
       console.debug("🔍 [Calculator] Expression changed:", newExpression);
     }
