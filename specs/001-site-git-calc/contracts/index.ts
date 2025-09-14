@@ -1,4 +1,4 @@
-import { HistoryTreeData } from "./data-model"; // Supondo que as interfaces estão no data-model
+import { HistoryTreeData } from "@/types/calculator";
 
 // src/actions/history.ts (Server Actions)
 export interface IHistoryActions {

@@ -35,7 +35,7 @@ export async function getHistory(): Promise<HistoryTreeData | null> {
       }
     }
 
-    return historyTree.data as HistoryTreeData
+    return historyTree.data as unknown as HistoryTreeData
   } catch (error) {
     console.error('Error getting history:', error)
     return null
@@ -55,11 +55,11 @@ export async function saveHistory(tree: HistoryTreeData): Promise<void> {
         userId: session.user.id
       },
       update: {
-        data: tree
+        data: tree as unknown as any
       },
       create: {
         userId: session.user.id,
-        data: tree
+        data: tree as unknown as any
       }
     })
   } catch (error) {

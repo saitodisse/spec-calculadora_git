@@ -1,6 +1,6 @@
 "use client";
 
-import { HistoryTreeData, HistoryNode } from "@/types/calculator";
+import { HistoryTreeData } from "@/types/calculator";
 
 interface HistoryPanelProps {
   history: HistoryTreeData | null;
