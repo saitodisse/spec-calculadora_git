@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { HistoryTreeData } from "@/types/calculator";
 import { Button } from "@/components/ui/button";
+import { BranchList } from "./BranchList";
 
 interface HistoryPanelProps {
   history: HistoryTreeData | null;
   onHistoryItemClick?: (expression: string) => void;
   onBranchName?: (branchName: string) => void;
+  onBranchSelect?: (nodeId: string) => void;
+  onBranchRename?: (branchName: string, nodeId: string) => void;
   className?: string;
 }
 
@@ -22,10 +25,13 @@ export function HistoryPanel({
   history,
   onHistoryItemClick,
   onBranchName,
+  onBranchSelect,
+  onBranchRename,
   className,
 }: HistoryPanelProps) {
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [branchName, setBranchName] = useState("");
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   // Converter o histórico em árvore para uma lista linear para exibição
   const getHistoryEntries = (tree: HistoryTreeData): HistoryEntry[] => {
@@ -50,16 +56,34 @@ export function HistoryPanel({
 
   const entries = history ? getHistoryEntries(history) : [];
 
-  const handleItemClick = (expression: string) => {
+  const handleItemClick = (expression: string, nodeId: string) => {
+    setSelectedNodeId(nodeId);
+    
     if (onHistoryItemClick) {
       onHistoryItemClick(expression);
 
       if (process.env.NODE_ENV === "development") {
         console.debug(
           "🔍 [HistoryPanel] Item clicked, setting expression:",
-          expression
+          expression,
+          "nodeId:",
+          nodeId
         );
       }
+    }
+  };
+
+  const handleBranchSelect = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+    
+    if (onBranchSelect) {
+      onBranchSelect(nodeId);
+    }
+  };
+
+  const handleBranchRename = (branchName: string, nodeId: string) => {
+    if (onBranchRename) {
+      onBranchRename(branchName, nodeId);
     }
   };
 
@@ -106,6 +130,17 @@ export function HistoryPanel({
         )}
       </div>
 
+      {/* Branch List */}
+      {history && Object.keys(history.branches).length > 0 && (
+        <div className="mb-4">
+          <BranchList
+            history={history}
+            onBranchSelect={handleBranchSelect}
+            onBranchRename={handleBranchRename}
+          />
+        </div>
+      )}
+
       {entries.length === 0 ? (
         <div className="text-gray-500 text-sm text-center py-8">
           <p>Nenhum cálculo realizado ainda.</p>
@@ -119,8 +154,14 @@ export function HistoryPanel({
             {entries.map((entry, index) => (
               <div
                 key={entry.id}
-                onClick={() => handleItemClick(entry.expression)}
-                className="px-3 py-2 hover:bg-gray-50 transition-colors flex items-center justify-between cursor-pointer"
+                onClick={() => handleItemClick(entry.expression, entry.id)}
+                className={`
+                  px-3 py-2 transition-colors flex items-center justify-between cursor-pointer
+                  ${selectedNodeId === entry.id 
+                    ? "bg-blue-100 border-l-4 border-blue-500" 
+                    : "hover:bg-gray-50"
+                  }
+                `}
               >
                 <div className="flex-1 min-w-0">
                   <div className="font-mono text-sm text-gray-800 truncate">
@@ -128,6 +169,11 @@ export function HistoryPanel({
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                  {selectedNodeId === entry.id && (
+                    <span className="text-xs bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded">
+                      Selecionado
+                    </span>
+                  )}
                   <span className="text-xs text-gray-500">
                     #{entries.length - index}
                   </span>
