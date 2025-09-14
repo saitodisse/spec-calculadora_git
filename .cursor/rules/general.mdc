@@ -1,3 +1,86 @@
+---
+alwaysApply: true
+---
+
+# Regras Gerais de Desenvolvimento
+
+Este documento define os princípios e regras de desenvolvimento inegociáveis para este projeto.
+
+## Princípios Fundamentais
+
+### 1. Test-Driven Development (TDD) - INEGOCIÁVEL
+
+- **Ciclo Obrigatório**: O desenvolvimento DEVE seguir estritamente o ciclo Red-Green-Refactor.
+  1.  **Red**: Escrever um teste que falha para a nova funcionalidade.
+  2.  **Green**: Escrever o código mínimo necessário para fazer o teste passar.
+  3.  **Refactor**: Refatorar o código para melhorar a qualidade sem alterar a funcionalidade.
+- **Proibido**: Nenhuma linha de código de implementação pode ser escrita antes que um teste correspondente que falhe tenha sido criado.
+
+### 2. Simplicidade (YAGNI - You Ain't Gonna Need It)
+
+- **Foco no Essencial**: Comece sempre com a solução mais simples possível que atenda aos requisitos atuais.
+- **Evite Complexidade Prematura**: Não adicione funcionalidades, padrões de design ou otimizações que não sejam estritamente necessárias _agora_. A complexidade deve ser justificada, não presumida.
+
+### 3. Lógica Core Desacoplada
+
+- **Separação de Responsabilidades**: A lógica de negócio principal (ex: `calculator-core`) DEVE ser implementada de forma independente do framework da UI (Next.js/React).
+- **Testabilidade**: A lógica core deve ser testável de forma isolada, sem depender de componentes da UI ou do DOM.
+
+### 4. TypeScript Estrito
+
+- **Tipagem Forte**: O modo `strict` do TypeScript é obrigatório.
+- **Sem `any`**: O uso do tipo `any` é proibido. Use `unknown` para tipagem segura quando o tipo for desconhecido, ou defina interfaces e tipos claros.
+
+### 5. Interface Responsiva e Acessível
+
+- **Mobile-First**: O design e a implementação devem priorizar a experiência em dispositivos móveis.
+- **Acessibilidade**: A interface DEVE seguir as diretrizes WCAG 2.1, garantindo que seja utilizável por todos, incluindo usuários de leitores de tela e navegação por teclado.
+
+## Stack Tecnológica Principal
+
+A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a versão estável mais recente no momento do desenvolvimento.
+
+- **Linguagem**: TypeScript (modo `strict`)
+- **Framework**: Next.js (com App Router)
+- **Estilização**: Tailwind CSS
+- **Componentes UI**: Shadcn UI
+- **Testes**: ViTest (Unitários/Integração) + React Testing Library (Componentes) + Playwright (End-to-End)
+- **Gerenciamento de Tema**: `next-themes`
+- **Build Tool**: Turbopack (via Next.js)
+- **Deployment**: Vercel
+
+## Ambiente de Desenvolvimento
+
+- **Sistema Operacional**: O desenvolvimento e o deploy devem ser direcionados para um ambiente **Linux**.
+- **Gerenciador de Pacotes**: O projeto DEVE utilizar **PNPM** para gerenciamento de dependências. Todos os comandos (`pnpm install`, `pnpm dev`, `pnpm test`) devem usar `pnpm`. O comando de teste (`pnpm test`) deve ser configurado para executar os testes uma única vez, sem o modo de observação (watch mode), utilizando a flag `--run` (`vitest --run`).
+
+### Diretriz de Uso de Dependências
+
+- **Consulta Obrigatória**: Antes de iniciar QUALQUER tarefa que interaja com uma dessas bibliotecas, o desenvolvedor (ou a IA) DEVE consultar a documentação oficial mais recente para garantir o uso das APIs e padrões recomendados. Utilize o `Context7` para obter a documentação atualizada.
+- **Versões**: As versões exatas devem ser gerenciadas pelo `package.json`, mas o desenvolvimento deve se basear nas práticas da última versão estável.
+
+## Workflow de Commits
+
+### 1. Commits Atômicos e Descritivos
+
+- **Frequência**: Ao final de CADA interação bem-sucedida com a IA que resultar em modificação ou criação de arquivos, um commit DEVE ser realizado.
+- **Qualidade da Mensagem**: Cada commit DEVE ter uma mensagem clara e descritiva, seguindo o padrão **Conventional Commits**.
+- **Estrutura**:
+
+  - **Header**: `type(scope): short description` (ex: `docs(spec): adiciona autenticação à user story`)
+  - **Body (Opcional, mas recomendado)**: Explica o _quê_ e o _porquê_ da mudança.
+  - **Exemplo**:
+
+    ```
+    docs(plan): atualiza arquitetura para full-stack
+
+    Refatora completamente o plano de implementação e o plano de tarefas para refletir a nova arquitetura com Next.js, PostgreSQL e NextAuth.
+
+    - Altera o `plan.md` para descrever a stack de backend.
+    - Reescreve o `tasks.md` com novas fases para setup de DB, auth e backend.
+    - Atualiza o `research.md` com decisões sobre Prisma e Docker.
+    ```
+
 # Regras Gerais de Desenvolvimento
 
 Este documento define os princípios e regras de desenvolvimento inegociáveis para este projeto.
