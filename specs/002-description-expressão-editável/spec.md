@@ -65,10 +65,10 @@ Ao criar esta spec a partir de um prompt do usuário:
 
 ### Cenários de Aceitação
 
-1. **Dado** que estou na calculadora, **Quando** eu clico no campo de expressão, **Então** o campo deve estar focado e pronto para edição
+1. **Dado** que estou na calculadora, **Quando** eu clico no campo de expressão atual, **Então** o campo deve estar focado e pronto para edição
 2. **Dado** que o campo de expressão está focado, **Quando** eu digito uma expressão matemática, **Então** a expressão deve aparecer no campo em tempo real
 3. **Dado** que tenho uma expressão no campo, **Quando** eu pressiono Enter ou clico no botão "=", **Então** o resultado deve ser calculado e exibido
-4. **Dado** que uma operação foi executada, **Quando** o resultado é calculado, **Então** a expressão e resultado devem ser adicionados ao histórico
+4. **Dado** que uma operação foi executada, **Quando** o resultado é calculado, **Então** a expressão e resultado devem ser adicionados ao histórico em formato JSON
 5. **Dado** que estou na calculadora, **Quando** a página carrega, **Então** o campo de expressão deve estar automaticamente focado
 6. **Dado** que estou em modo de desenvolvimento, **Quando** interajo com a calculadora, **Então** mensagens de debug detalhadas devem aparecer no console
 
@@ -83,11 +83,11 @@ Ao criar esta spec a partir de um prompt do usuário:
 
 ### Requisitos Funcionais
 
-- **FR-001**: O sistema DEVE fornecer um campo de entrada editável para expressões matemáticas
+- **FR-001**: O sistema DEVE fornecer um campo de entrada editável no lugar onde é mostrada a expressão atual
 - **FR-002**: O sistema DEVE manter o foco automático no campo de expressão sempre que possível
-- **FR-003**: O sistema DEVE permitir execução de cálculos através do campo de entrada (Enter ou botão =)
+- **FR-003**: O sistema DEVE apagar a expressão atual após o submit (Enter) e substituí-la pelo resultado da expressão anterior, permitindo que o usuário continue com uma nova expressão usando o resultado como número inicial
 - **FR-004**: O sistema DEVE adicionar automaticamente cada operação executada ao histórico
-- **FR-005**: O sistema DEVE exibir o histórico em formato de texto simples, uma linha por entrada
+- **FR-005**: O sistema DEVE exibir o histórico em formato JSON, uma linha por entrada
 - **FR-006**: O sistema DEVE posicionar o histórico à direita da calculadora
 - **FR-007**: O sistema DEVE exibir mensagens de debug detalhadas no console apenas em modo de desenvolvimento
 - **FR-008**: O sistema DEVE validar expressões matemáticas antes de executar cálculos
