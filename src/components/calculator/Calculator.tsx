@@ -13,17 +13,22 @@ interface CalculatorProps {
   onHistoryChange?: (history: HistoryTreeData) => void;
 }
 
-export function Calculator({ initialHistory, onHistoryChange }: CalculatorProps) {
+export function Calculator({
+  initialHistory,
+  onHistoryChange,
+}: CalculatorProps) {
   const { data: session } = useSession();
   const [expression, setExpression] = useState("");
   const [result, setResult] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [localHistory, setLocalHistory] = useState<HistoryTreeData | null>(initialHistory || null);
+  const [localHistory, setLocalHistory] = useState<HistoryTreeData | null>(
+    initialHistory || null
+  );
 
   useEffect(() => {
     setIsAuthenticated(!!session?.user);
     setLocalHistory(initialHistory || null);
-    
+
     if (process.env.NODE_ENV === "development") {
       console.log("🔍 [Calculator] Initial history loaded:", initialHistory);
     }
@@ -44,7 +49,10 @@ export function Calculator({ initialHistory, onHistoryChange }: CalculatorProps)
         case "=":
           if (newExpression) {
             if (process.env.NODE_ENV === "development") {
-              console.log("🔍 [Calculator] Calculating expression:", newExpression);
+              console.log(
+                "🔍 [Calculator] Calculating expression:",
+                newExpression
+              );
             }
 
             // Usar nossa nova API de cálculo
@@ -60,16 +68,16 @@ export function Calculator({ initialHistory, onHistoryChange }: CalculatorProps)
               parentId: localHistory?.head || null,
               timestamp: Date.now(),
               expression: newExpression,
-              result: calculationResult.result
+              result: calculationResult.result,
             };
 
             const updatedHistory: HistoryTreeData = {
               nodes: {
-                ...localHistory?.nodes || {},
-                [newHistoryEntry.id]: newHistoryEntry
+                ...(localHistory?.nodes || {}),
+                [newHistoryEntry.id]: newHistoryEntry,
               },
               head: newHistoryEntry.id,
-              branches: localHistory?.branches || {}
+              branches: localHistory?.branches || {},
             };
 
             setLocalHistory(updatedHistory);
@@ -77,7 +85,10 @@ export function Calculator({ initialHistory, onHistoryChange }: CalculatorProps)
 
             if (process.env.NODE_ENV === "development") {
               console.log("🔍 [Calculator] Added to history:", newHistoryEntry);
-              console.log("🔍 [Calculator] Updated history state:", updatedHistory);
+              console.log(
+                "🔍 [Calculator] Updated history state:",
+                updatedHistory
+              );
             }
 
             // Salvar no servidor se autenticado
@@ -85,7 +96,9 @@ export function Calculator({ initialHistory, onHistoryChange }: CalculatorProps)
               try {
                 await saveHistory(updatedHistory);
                 if (process.env.NODE_ENV === "development") {
-                  console.log("🔍 [Calculator] History saved to server successfully");
+                  console.log(
+                    "🔍 [Calculator] History saved to server successfully"
+                  );
                 }
               } catch (error) {
                 console.error("🔍 [Calculator] Failed to save history:", error);

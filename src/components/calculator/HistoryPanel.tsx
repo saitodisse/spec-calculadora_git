@@ -18,47 +18,29 @@ export function HistoryPanel({ history, className }: HistoryPanelProps) {
   // Converter o histórico em árvore para uma lista linear para exibição
   const getHistoryEntries = (tree: HistoryTreeData): HistoryEntry[] => {
     const entries: HistoryEntry[] = [];
-    
-    const traverse = (nodeId: string, visited = new Set<string>()) => {
-      if (visited.has(nodeId)) return;
-      visited.add(nodeId);
-      
-      const node = tree.nodes[nodeId];
-      if (node) {
+
+    // Coletar todos os nós válidos (exceto o root se for apenas "0")
+    Object.values(tree.nodes).forEach((node) => {
+      // Incluir todos os nós que não são apenas "0" ou estão vazios
+      if (node.expression !== "0" && node.expression.trim() !== "") {
         entries.push({
           id: node.id,
           expression: node.expression,
           result: node.result,
-          timestamp: node.timestamp
-        });
-        
-        // Visitar nós filhos se existirem
-        Object.values(tree.nodes).forEach(childNode => {
-          if (childNode.parentId === nodeId) {
-            traverse(childNode.id, visited);
-          }
+          timestamp: node.timestamp,
         });
       }
-    };
-    
-    // Começar do nó raiz
-    if (tree.head) {
-      traverse(tree.head);
-    }
-    
+    });
+
     // Ordenar por timestamp (mais recente primeiro)
     return entries.sort((a, b) => b.timestamp - a.timestamp);
   };
 
   const entries = history ? getHistoryEntries(history) : [];
-  
-  // Filtrar apenas entradas com expressões válidas (não apenas "0")
-  const validEntries = entries.filter(entry => 
-    entry.expression !== "0" && entry.expression.trim() !== ""
-  );
 
   if (process.env.NODE_ENV === "development") {
-    console.log("🔍 [HistoryPanel] Rendering with entries:", validEntries);
+    console.log("🔍 [HistoryPanel] Rendering with entries:", entries);
+    console.log("🔍 [HistoryPanel] Total nodes in history:", history ? Object.keys(history.nodes).length : 0);
   }
 
   return (
@@ -66,8 +48,8 @@ export function HistoryPanel({ history, className }: HistoryPanelProps) {
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         📊 Histórico de Cálculos
       </h3>
-      
-      {validEntries.length === 0 ? (
+
+      {entries.length === 0 ? (
         <div className="text-gray-500 text-sm text-center py-8">
           <p>Nenhum cálculo realizado ainda.</p>
           <p className="mt-2 text-xs">
@@ -75,26 +57,32 @@ export function HistoryPanel({ history, className }: HistoryPanelProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-2 max-h-96 overflow-y-auto">
-          {validEntries.map((entry, index) => (
-            <div
-              key={entry.id}
-              className="p-3 bg-gray-50 rounded border-l-4 border-blue-400 hover:bg-gray-100 transition-colors"
-            >
-              <div className="text-sm text-gray-600 mb-1">
-                #{validEntries.length - index}
+        <div className="max-h-80 overflow-y-auto border border-gray-200 rounded">
+          <div className="divide-y divide-gray-100">
+            {entries.map((entry, index) => (
+              <div
+                key={entry.id}
+                className="px-3 py-2 hover:bg-gray-50 transition-colors flex items-center justify-between"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="font-mono text-sm text-gray-800 truncate">
+                    {entry.expression} = {entry.result}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                  <span className="text-xs text-gray-500">
+                    #{entries.length - index}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {new Date(entry.timestamp).toLocaleTimeString()}
+                  </span>
+                </div>
               </div>
-              <div className="font-mono text-sm text-gray-800 mb-1">
-                {entry.expression} = {entry.result}
-              </div>
-              <div className="text-xs text-gray-500">
-                {new Date(entry.timestamp).toLocaleTimeString()}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
-      
+
       {history && (
         <div className="mt-4 pt-3 border-t border-gray-200">
           <div className="text-xs text-gray-500">

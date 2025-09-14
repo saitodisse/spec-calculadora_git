@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Calculator } from "@/components/calculator/Calculator"
-import { HistoryPanel } from "@/components/calculator/HistoryPanel"
-import { SignInButton, SignOutButton } from "@/components/auth"
-import { HistoryTreeData } from "@/types/calculator"
-import { useSession } from "next-auth/react"
+import { Calculator } from "@/components/calculator/Calculator";
+import { HistoryPanel } from "@/components/calculator/HistoryPanel";
+import { SignInButton, SignOutButton } from "@/components/auth";
+import { HistoryTreeData } from "@/types/calculator";
+import { useSession } from "next-auth/react";
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -21,15 +21,15 @@ export default function HomePage() {
           <p className="text-gray-600 mb-4">
             Uma calculadora avançada que salva seu histórico como uma árvore Git
           </p>
-          
+
           <div className="flex justify-center gap-4">
             {session?.user ? (
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   {session.user.image && (
-                    <img 
-                      src={session.user.image} 
-                      alt={session.user.name || "User"} 
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
                       className="w-8 h-8 rounded-full"
                     />
                   )}
@@ -46,8 +46,8 @@ export default function HomePage() {
         </header>
 
         <main className="flex justify-center gap-6 max-w-6xl mx-auto">
-          <Calculator 
-            initialHistory={history || undefined} 
+          <Calculator
+            initialHistory={history || undefined}
             onHistoryChange={setHistory}
           />
           <HistoryPanel history={history} className="w-80" />
@@ -59,12 +59,12 @@ export default function HomePage() {
               💡 Faça login para salvar seu histórico
             </h3>
             <p className="text-blue-700 text-sm">
-              Quando você fizer login, todos os seus cálculos serão salvos automaticamente 
-              e você poderá acessá-los de qualquer dispositivo.
+              Quando você fizer login, todos os seus cálculos serão salvos
+              automaticamente e você poderá acessá-los de qualquer dispositivo.
             </p>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
