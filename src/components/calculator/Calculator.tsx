@@ -36,7 +36,7 @@ export function Calculator({
 
   const handleExpressionChange = (newExpression: string) => {
     setExpression(newExpression);
-    
+
     if (process.env.NODE_ENV === "development") {
       console.debug("🔍 [Calculator] Expression changed:", newExpression);
     }
@@ -88,7 +88,9 @@ export function Calculator({
         try {
           await saveHistory(updatedHistory);
           if (process.env.NODE_ENV === "development") {
-            console.debug("🔍 [Calculator] History saved to server successfully");
+            console.debug(
+              "🔍 [Calculator] History saved to server successfully"
+            );
           }
         } catch (error) {
           console.error("🔍 [Calculator] Failed to save history:", error);
@@ -121,9 +123,14 @@ export function Calculator({
       }
 
       setExpression(newExpression);
-      
+
       if (process.env.NODE_ENV === "development") {
-        console.debug("🔍 [Calculator] Button clicked:", value, "New expression:", newExpression);
+        console.debug(
+          "🔍 [Calculator] Button clicked:",
+          value,
+          "New expression:",
+          newExpression
+        );
       }
     } catch (error) {
       console.error("Calculator error:", error);
