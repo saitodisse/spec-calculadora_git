@@ -46,9 +46,9 @@
 - Expressão final correta
 - Cálculo executado corretamente
 
-### Cenário 3: Histórico em Formato JSON
+### Cenário 3: Histórico em Formato Texto
 
-**Objetivo**: Validar que operações são salvas no histórico em formato JSON
+**Objetivo**: Validar que operações são salvas no histórico em formato texto simples
 
 **Passos**:
 
@@ -56,13 +56,13 @@
 2. Executar cálculo "2 + 3" (resultado: 5)
 3. Executar cálculo "5 \* 2" (resultado: 10)
 4. Verificar o histórico à direita
-5. Verificar que cada entrada está em formato JSON
+5. Verificar que cada entrada está em formato texto simples
 
 **Resultado Esperado**:
 
 - Histórico exibido à direita da calculadora
-- Cada entrada em formato JSON com:
-  - id, timestamp, expression, result, executionTime
+- Cada entrada em formato texto simples, uma linha por operação
+- Formato: "2 + 3 = 5" ou similar
 - Entradas ordenadas por timestamp (mais recente primeiro)
 
 ### Cenário 4: Continuidade de Cálculos
@@ -78,14 +78,14 @@
 5. Digitar " _ 2" (campo deve mostrar "5 _ 2")
 6. Pressionar Enter para calcular
 7. **Verificar que o campo de entrada agora mostra apenas "10" (resultado) no lugar da expressão "5 \* 2"**
-8. Verificar que o histórico contém ambas as operações em formato JSON
+8. Verificar que o histórico contém ambas as operações em formato texto simples
 
 **Resultado Esperado**:
 
 - **Após cada cálculo (ENTER), o campo de entrada é completamente substituído pelo resultado numérico**
 - O resultado vira a nova expressão inicial para cálculos subsequentes
 - Usuário pode continuar calculando usando o resultado anterior como base
-- Histórico mantém todas as operações com expressões originais e resultados
+- Histórico mantém todas as operações em formato texto simples
 - Comportamento consistente: sempre que ENTER é pressionado, expressão → resultado no campo
 
 ### Cenário 5: Debug em Modo Desenvolvimento
