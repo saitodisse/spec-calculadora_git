@@ -48,6 +48,24 @@ Criaremos um `PersistenceService` dedicado que encapsula toda a lógica de inter
 - **Eficiência**: A CLI da Shadcn UI acelera o desenvolvimento ao fornecer componentes acessíveis e customizáveis, baseados em Radix UI.
 - **Padrão da Indústria**: ViTest oferece uma alternativa rápida e compatível com a API do Jest, sendo uma escolha moderna e popular para projetos React.
 
-## 4. Conclusão da Pesquisa
+## 4. Estratégia de Avaliação de Expressões
+
+### Decisão
+
+Utilizaremos a biblioteca **`math.js`** para toda a lógica de parsing e avaliação de expressões matemáticas, encapsulada em um `ExpressionEvaluatorService`. Manteremos o conjunto completo de funcionalidades da biblioteca, sem restrições, mas focaremos a UI apenas nas operações matemáticas padrão.
+
+### Justificativa
+
+- **Segurança**: `math.js` possui um parser seguro que evita os riscos de segurança associados ao uso de `eval()` nativo do JavaScript.
+- **Robustez**: A biblioteca já lida com ordem de operações, parênteses e uma vasta gama de funções matemáticas, eliminando a necessidade de implementar um parser complexo.
+- **Manutenibilidade**: Encapsular a biblioteca em um serviço próprio permite que a lógica de avaliação seja testada de forma isolada e facilita futuras manutenções.
+
+### Estratégia de Manuseio de Erros
+
+- **Feedback Duplo**: Quando `math.js` lançar um erro de parsing (ex: expressão malformada), a aplicação irá:
+  1.  Exibir uma mensagem de erro clara e sutil abaixo do campo de entrada da expressão.
+  2.  Se a informação do erro permitir, destacar a porção da string da expressão que causou o erro, para guiar o usuário na correção.
+
+## 5. Conclusão da Pesquisa
 
 A pesquisa confirma que a stack tecnológica escolhida é adequada e que existem padrões bem estabelecidos para sua implementação. Nenhuma barreira técnica foi identificada. Estamos prontos para prosseguir com a Fase 1: Design & Contratos.

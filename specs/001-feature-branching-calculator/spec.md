@@ -64,11 +64,37 @@ Como um analista financeiro, eu quero realizar uma série de cálculos para uma 
 
 ### Cenários de Aceitação
 
-**Dado** que a calculadora está no estado inicial (valor 0), **Quando** o usuário executa a sequência de operações: 5, +, 3, =, _, 2, =, **Então** o visor da calculadora deve mostrar o resultado 16 e a Árvore de Histórico deve conter três nós: o nó raiz (0), um nó para a expressão "5 + 3" (resultado 8) e um nó para a expressão "8 _ 2" (resultado 16). O ponteiro HEAD deve estar no nó 16.
+**Cenário: Criação de um Histórico Linear com Expressões**
+**Dado** que a calculadora está no estado inicial (valor 0).
+**Quando** o usuário executa a expressão `5 * 10 - 5 =`.
+**Então** o visor deve mostrar o resultado `45`.
+**E** a Árvore de Histórico deve conter um novo nó para a expressão `"5 * 10 - 5 = 45"`.
+**Quando** o usuário, a partir do resultado anterior, executa `+ 5 =`.
+**Então** o visor deve mostrar o resultado `50`.
+**E** a Árvore de Histórico deve conter um novo nó para a expressão `"45 + 5 = 50"`, que é filho do nó anterior.
 
-**Dado** o histórico do cenário anterior, com o HEAD no nó de resultado 16, **Quando** o usuário navega na visualização do histórico, ativa (realiza um checkout) o nó com o resultado 8 e executa uma nova operação: -, 1, =, **Então** o visor da calculadora deve mostrar o novo resultado 7, um novo Nó de Cálculo para a expressão "8 - 1" deve ser criado automaticamente na Árvore de Histórico tendo o nó 8 como seu pai, e o ponteiro HEAD deve se mover atomicamente para este novo nó 7. O nó original com o resultado 16 deve permanecer intacto.
+**Cenário: Navegação e Criação de um Ramo (Branch)**
+**Dado** o histórico do cenário anterior.
+**Quando** o usuário navega e ativa (realiza um checkout) o nó com o resultado `45`.
+**Então** o visor da calculadora é atualizado para mostrar o resultado `45`, que se torna a entrada para a próxima operação.
+**E** quando o usuário executa uma nova operação `/ 9 =`.
+**Então** o visor deve mostrar o novo resultado `5`.
+**E** um novo nó para a expressão `"45 / 9 = 5"` deve ser criado como um novo filho do nó `45`.
+**E** o nó original com o resultado `50` e sua linhagem devem permanecer intactos na Árvore de Histórico.
 
-**Dado** o estado do histórico do cenário anterior, onde existem duas linhas de cálculo divergindo do nó 8, **Quando** o usuário abre a interface de visualização da Árvore de Histórico, **Então** a interface deve renderizar um gráfico mostrando o nó 8 com dois nós filhos: um para o resultado 16 e outro para o resultado 7. **Quando** o usuário clica e ativa (checkout) o nó 16 na visualização, **Então** o visor da calculadora deve ser atualizado para exibir 16 e o ponteiro HEAD deve agora referenciar o nó 16.
+**Cenário: Visualização e Troca entre Ramos**
+**Dado** o estado do histórico do cenário anterior, onde existem duas linhas de cálculo divergindo do nó `45`.
+**Quando** o usuário abre a interface de visualização da Árvore de Histórico.
+**Então** a interface deve renderizar um gráfico mostrando o nó `45` com dois filhos: um para o resultado `50` e outro para o resultado `5`.
+**Quando** o usuário clica e ativa (checkout) o nó `50` na visualização.
+**Então** o visor da calculadora deve ser atualizado para exibir `50`.
+**E** o ponteiro HEAD deve agora referenciar o nó `50`.
+
+**Cenário: Uso de Parênteses para Ordem de Operações**
+**Dado** que a calculadora está no estado inicial (valor 0).
+**Quando** o usuário executa a expressão `(5 + 5) * 2 =`.
+**Então** o visor deve mostrar o resultado `20`, respeitando os parênteses antes da multiplicação.
+**E** a Árvore de Histórico deve conter um novo nó para a expressão `"(5 + 5) * 2 = 20"`.
 
 ### Casos Limite
 
@@ -86,15 +112,17 @@ Como um analista financeiro, eu quero realizar uma série de cálculos para uma 
 
 **FR-CORE-001**: O sistema DEVE fornecer as quatro operações aritméticas básicas: adição (+), subtração (-), multiplicação (\*) e divisão (/).
 
-**FR-CORE-002**: O sistema DEVE possuir um visor principal para exibir a entrada numérica atual e o resultado final.
+**FR-CORE-002**: O sistema DEVE possuir um visor principal para exibir a expressão atual sendo construída e o resultado da última expressão avaliada.
 
 **FR-CORE-003**: O sistema DEVE possuir um botão 'Limpar' (C) que cria um novo Nó de Cálculo com valor 0, tendo o nó HEAD atual como pai.
 
 **FR-CORE-004**: O sistema DEVE possuir um botão 'Limpar Tudo' (AC) que reinicia a Árvore de Histórico para um estado inicial, com apenas um nó raiz (valor 0).
 
+**FR-CORE-005**: O sistema DEVE permitir a inclusão de parênteses `()` para controlar a ordem das operações, conforme as regras matemáticas padrão.
+
 #### FR-STATE: Gerenciamento de Estado e Histórico
 
-**FR-STATE-001**: Cada operação bem-sucedida DEVE resultar na criação de um novo Nó de Cálculo imutável na Árvore de Histórico.
+**FR-STATE-001**: A avaliação bem-sucedida de uma expressão completa (iniciada pelo usuário, por exemplo, ao pressionar '=') DEVE resultar na criação de um novo Nó de Cálculo imutável na Árvore de Histórico.
 
 **FR-STATE-002**: Cada Nó de Cálculo DEVE conter uma referência para seu Nó Pai. O nó raiz não terá um pai.
 
@@ -126,7 +154,7 @@ Como um analista financeiro, eu quero realizar uma série de cálculos para uma 
 
 **FR-VIS-001**: O sistema DEVE fornecer uma interface gráfica que renderiza a Árvore de Histórico como um diagrama de nós e arestas (grafo).
 
-**FR-VIS-002**: Cada nó no diagrama DEVE exibir informações essenciais, como o resultado final e a expressão completa que o gerou (ex: "8 \* 2").
+**FR-VIS-002**: Cada nó no diagrama DEVE exibir a expressão completa e seu resultado final (ex: `"5 * 10 - 5 = 45"`).
 
 **FR-VIS-003**: O nó HEAD atual DEVE ser visualmente destacado no diagrama.
 
@@ -135,6 +163,8 @@ Como um analista financeiro, eu quero realizar uma série de cálculos para uma 
 **FR-VIS-005**: A visualização DEVE ser interativa, permitindo que o usuário clique em qualquer nó para executar a operação de checkout.
 
 **FR-VIS-006**: A interface DEVE fornecer um indicador visual sutil de que a próxima operação criará um novo ramo quando o usuário estiver em um estado de "HEAD Desanexado".
+
+**FR-ERROR-001**: Em caso de expressão matemática inválida (ex: `1 + * 2`), o sistema DEVE fornecer feedback claro ao usuário, exibindo uma mensagem de erro e, se possível, destacando a parte incorreta da expressão.
 
 #### FR-PERSIST: Persistência de Dados
 
@@ -161,7 +191,7 @@ As seguintes funcionalidades são explicitamente consideradas fora do escopo par
 - **ID**: Identificador único global (ex: UUID).
 - **ParentID**: O ID do nó pai (nulo para o nó raiz).
 - **Timestamp**: O registro de data e hora de quando o cálculo foi realizado.
-- **Expressao**: A expressão completa que foi avaliada para gerar o resultado (ex: "8 \* 2").
+- **Expressao**: A expressão completa que foi avaliada para gerar o resultado (ex: "5 \* 10 - 5").
 - **ResultadoFinal**: O resultado numérico do cálculo.
 
 #### Entidade 2: Árvore de Histórico (HistoryTree)

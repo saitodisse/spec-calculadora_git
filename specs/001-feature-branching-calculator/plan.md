@@ -126,6 +126,7 @@ tests/
 2.  **Gerar e despachar agentes de pesquisa**: A pesquisa se concentrará em estabelecer as melhores práticas para a stack definida.
     - **Tarefa**: "Pesquisar padrões de design para gerenciar estado complexo (grafo) em React/Next.js."
     - **Tarefa**: "Verificar a melhor abordagem para persistir o estado da aplicação no Local Storage de forma robusta e eficiente."
+    - **Tarefa**: "Investigar e selecionar uma biblioteca segura para parsing e avaliação de expressões matemáticas (ex: `math.js`, `expr-eval`), evitando o uso de `eval()`."
     - **Tarefa**: "Estruturar um projeto Next.js com Tailwind e Shadcn UI seguindo as melhores práticas."
     - **Tarefa**: "Configurar ViTest e React Testing Library para um projeto Next.js App Router."
 3.  **Consolidar achados** em `research.md`.
@@ -163,13 +164,17 @@ _Esta seção descreve o que o comando /tasks fará - NÃO executar durante /pla
 - A ordem seguirá estritamente o TDD:
   1.  Testes de Contrato para `PersistenceService`.
   2.  Implementação do `PersistenceService`.
-  3.  Testes unitários para a lógica do `calculator-core`.
-  4.  Implementação do `calculator-core`.
-  5.  Testes de integração que combinam `calculator-core` e `PersistenceService`.
-  6.  Testes de componentes da UI (ex: Visor, Botões).
-  7.  Implementação dos componentes da UI.
-  8.  Testes E2E (nível de página) para os Cenários de Aceitação completos.
-  9.  Implementação da UI da página principal.
+  3.  Testes unitários para o `ExpressionEvaluatorService` (que usará a biblioteca de parsing).
+  4.  Implementação do `ExpressionEvaluatorService`.
+  5.  Testes unitários para a lógica do `calculator-core`, com mock do avaliador.
+  6.  Implementação do `calculator-core`.
+  7.  Testes de integração combinando `calculator-core`, `ExpressionEvaluatorService` e `PersistenceService`.
+  8.  Testes de componentes da UI (ex: Visor, Botões).
+  9.  Implementação dos componentes da UI.
+  10. Testes para o componente de feedback de erro da expressão.
+  11. Implementação do componente de feedback de erro (mensagem e destaque).
+  12. Testes E2E (nível de página) para os Cenários de Aceitação completos, incluindo parênteses e expressões inválidas.
+  13. Implementação da UI da página principal, integrando todos os componentes.
 - Marcar tarefas independentes para execução paralela [P].
 
 **Saída Estimada**: Um `tasks.md` detalhado com 20-30 tarefas ordenadas.

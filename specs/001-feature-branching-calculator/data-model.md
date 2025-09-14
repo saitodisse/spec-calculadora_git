@@ -8,13 +8,13 @@ Este documento define as principais entidades de dados para a feature da Calcula
 
 ### Atributos
 
-| Atributo     | Tipo               | Descrição                                                                     | Obrigatório |
-| :----------- | :----------------- | :---------------------------------------------------------------------------- | :---------- |
-| `id`         | `string` (UUID)    | Identificador único global para o nó.                                         | Sim         |
-| `parentId`   | `string` \| `null` | O ID do nó pai. É `null` para o nó raiz da árvore.                            | Não         |
-| `timestamp`  | `number`           | O registro de data e hora (Unix timestamp) de quando o cálculo foi realizado. | Sim         |
-| `expression` | `string`           | A expressão completa que foi avaliada para gerar o resultado (ex: "8 \* 2").  | Sim         |
-| `result`     | `number`           | O resultado numérico final do cálculo.                                        | Sim         |
+| Atributo     | Tipo               | Descrição                                                                               | Obrigatório |
+| :----------- | :----------------- | :-------------------------------------------------------------------------------------- | :---------- |
+| `id`         | `string` (UUID)    | Identificador único global para o nó.                                                   | Sim         |
+| `parentId`   | `string` \| `null` | O ID do nó pai. É `null` para o nó raiz da árvore.                                      | Não         |
+| `timestamp`  | `number`           | O registro de data e hora (Unix timestamp) de quando o cálculo foi realizado.           | Sim         |
+| `expression` | `string`           | A expressão completa que foi avaliada, podendo incluir parênteses (ex: "(5 + 5) \* 2"). | Sim         |
+| `result`     | `number`           | O resultado numérico final do cálculo.                                                  | Sim         |
 
 ### Interface TypeScript
 

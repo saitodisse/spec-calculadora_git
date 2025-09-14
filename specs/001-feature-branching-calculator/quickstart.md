@@ -37,7 +37,14 @@ Este documento descreve os passos para verificar manualmente a **User Story Prim
               -> (7)  <-- HEAD
     ```
 
-### 3. Comparar os Cenários
+### 3. Usar Parênteses
+
+1.  **A partir do estado inicial**, execute a expressão `(5 + 3) * 2 =`.
+    - **Resultado esperado**: O visor deve mostrar `16`. A ordem das operações deve ser respeitada.
+2.  **Verifique a visualização do histórico**.
+    - **Resultado esperado**: Um novo nó `"(5 + 3) * 2 = 16"` deve ser visível.
+
+### 4. Comparar os Cenários
 
 1.  **Na visualização do histórico**, clique no nó com o resultado "16".
     - **Resultado esperado**: O visor deve ser atualizado para "16". O `HEAD` agora aponta para o nó `(16)`.
