@@ -236,8 +236,8 @@ _Este checklist é atualizado durante o fluxo de execução_
 
 - [x] Fase 0: Pesquisa concluída (comando /plan)
 - [x] Fase 1: Design concluído (comando /plan)
-- [ ] Fase 2: Planejamento de tarefas concluído (comando /plan - apenas descrever abordagem)
-- [ ] Fase 3: Tarefas geradas (comando /tasks)
+- [x] Fase 2: Planejamento de tarefas concluído (comando /plan - apenas descrever abordagem)
+- [x] Fase 3: Tarefas geradas (comando /tasks)
 - [ ] Fase 4: Implementação concluída
 - [ ] Fase 5: Validação aprovada
 
