@@ -42,12 +42,15 @@ export function Calculator({
   useEffect(() => {
     if (externalExpression !== undefined && externalExpression !== expression) {
       setExpression(externalExpression);
-      
+
       if (process.env.NODE_ENV === "development") {
-        console.debug("🔍 [Calculator] External expression changed:", externalExpression);
+        console.debug(
+          "🔍 [Calculator] External expression changed:",
+          externalExpression
+        );
       }
     }
-  }, [externalExpression, expression]);
+  }, [externalExpression]); // Removido 'expression' das dependências para evitar loop
 
   const handleExpressionChange = (newExpression: string) => {
     setExpression(newExpression);

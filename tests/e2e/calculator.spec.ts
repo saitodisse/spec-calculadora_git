@@ -29,7 +29,7 @@ test.describe("Calculator with History", () => {
     await page.getByRole("button", { name: "=" }).click();
 
     // Check if the result is displayed
-    await expect(page.locator('[class*="text-3xl"]')).toContainText("8");
+    await expect(page.getByRole("textbox", { name: "Digite uma expressão matemática..." })).toHaveValue("8");
   });
 
   test("should show login prompt for unauthenticated users", async ({
@@ -57,7 +57,7 @@ test.describe("Calculator with History", () => {
     // Clear all
     await page.getByRole("button", { name: "AC" }).click();
 
-    // Check if display shows 0
-    await expect(page.locator('[class*="text-3xl"]')).toContainText("0");
+    // Check if display is cleared
+    await expect(page.getByRole("textbox", { name: "Digite uma expressão matemática..." })).toHaveValue("");
   });
 });

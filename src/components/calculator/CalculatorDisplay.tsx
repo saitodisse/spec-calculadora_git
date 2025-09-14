@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 
 interface CalculatorDisplayProps {
@@ -18,13 +18,7 @@ export function CalculatorDisplay({
   onCalculate,
   className,
 }: CalculatorDisplayProps) {
-  const [inputValue, setInputValue] = useState(expression);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Sincronizar input com expression prop
-  useEffect(() => {
-    setInputValue(expression);
-  }, [expression]);
 
   // Foco automático no input
   useEffect(() => {
@@ -35,7 +29,6 @@ export function CalculatorDisplay({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setInputValue(value);
     onExpressionChange(value);
 
     if (process.env.NODE_ENV === "development") {
@@ -51,12 +44,11 @@ export function CalculatorDisplay({
       if (process.env.NODE_ENV === "development") {
         console.debug(
           "🔍 [CalculatorDisplay] Enter pressed, calculating:",
-          inputValue
+          expression
         );
       }
     } else if (e.key === "Escape") {
       e.preventDefault();
-      setInputValue("");
       onExpressionChange("");
 
       if (process.env.NODE_ENV === "development") {
@@ -75,7 +67,7 @@ export function CalculatorDisplay({
     <div className={`bg-gray-900 text-white p-4 rounded-lg ${className}`}>
       <Input
         ref={inputRef}
-        value={inputValue}
+        value={expression}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
