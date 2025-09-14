@@ -1,0 +1,366 @@
+openapi: 3.0.3
+info:
+  title: Branch Management API
+  description: API para gerenciamento de branches no histórico da calculadora
+  version: 1.0.0
+  contact:
+    name: Calculator Team
+    email: team@calculator.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+paths:
+  /calculator/history:
+    get:
+      summary: Obter histórico completo com branches
+      description: Retorna o histórico completo do usuário incluindo todas as branches nomeadas
+      security:
+        - NextAuth: []
+      responses:
+        '200':
+          description: Histórico obtido com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nodes:
+                    type: object
+                    additionalProperties:
+                      $ref: '#/components/schemas/CalculationNode'
+                  head:
+                    type: string
+                    description: ID do nó atual (HEAD)
+                  branches:
+                    type: object
+                    additionalProperties:
+                      type: string
+                    description: Mapeamento de nome da branch para ID do nó
+              example:
+                nodes:
+                  node1:
+                    id: "node1"
+                    parentId: null
+                    timestamp: 1640995200000
+                    expression: "2 + 3"
+                    result: 5
+                  node2:
+                    id: "node2"
+                    parentId: "node1"
+                    timestamp: 1640995260000
+                    expression: "5 * 2"
+                    result: 10
+                head: "node2"
+                branches:
+                  feature-branch: "node1"
+                  main-branch: "node2"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /calculator/branches/rename:
+    post:
+      summary: Renomear uma branch
+      description: Renomeia uma branch existente no histórico do usuário
+      security:
+        - NextAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - oldName
+                - newName
+                - nodeId
+              properties:
+                oldName:
+                  type: string
+                  description: Nome atual da branch
+                  example: "feature-branch"
+                newName:
+                  type: string
+                  description: Novo nome da branch
+                  example: "new-feature-branch"
+                nodeId:
+                  type: string
+                  description: ID do nó associado à branch
+                  example: "node1"
+            example:
+              oldName: "feature-branch"
+              newName: "new-feature-branch"
+              nodeId: "node1"
+      responses:
+        '200':
+          description: Branch renomeada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Branch renomeada com sucesso"
+                  branch:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "new-feature-branch"
+                      nodeId:
+                        type: string
+                        example: "node1"
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Branch não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '409':
+          description: Nome de branch já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /calculator/branches/create:
+    post:
+      summary: Criar uma nova branch
+      description: Cria uma nova branch nomeada a partir de um nó existente
+      security:
+        - NextAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - nodeId
+              properties:
+                name:
+                  type: string
+                  description: Nome da nova branch
+                  example: "experiment-branch"
+                nodeId:
+                  type: string
+                  description: ID do nó para criar a branch
+                  example: "node1"
+            example:
+              name: "experiment-branch"
+              nodeId: "node1"
+      responses:
+        '201':
+          description: Branch criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Branch criada com sucesso"
+                  branch:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "experiment-branch"
+                      nodeId:
+                        type: string
+                        example: "node1"
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Nó não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '409':
+          description: Nome de branch já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /calculator/branches/delete:
+    delete:
+      summary: Deletar uma branch
+      description: Remove uma branch nomeada (não deleta o nó associado)
+      security:
+        - NextAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Nome da branch a ser deletada
+                  example: "old-branch"
+            example:
+              name: "old-branch"
+      responses:
+        '200':
+          description: Branch deletada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Branch deletada com sucesso"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Branch não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    CalculationNode:
+      type: object
+      required:
+        - id
+        - parentId
+        - timestamp
+        - expression
+        - result
+      properties:
+        id:
+          type: string
+          description: Identificador único do nó
+          example: "node1"
+        parentId:
+          type: string
+          nullable: true
+          description: ID do nó pai (null para nó raiz)
+          example: null
+        timestamp:
+          type: integer
+          format: int64
+          description: Timestamp Unix em milissegundos
+          example: 1640995200000
+        expression:
+          type: string
+          description: Expressão matemática calculada
+          example: "2 + 3"
+        result:
+          type: number
+          description: Resultado do cálculo
+          example: 5
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "Nome da branch é obrigatório"
+        details:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    NotFoundError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "NOT_FOUND"
+        message:
+          type: string
+          example: "Branch não encontrada"
+
+    ConflictError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "CONFLICT"
+        message:
+          type: string
+          example: "Nome de branch já existe"
+
+  responses:
+    Unauthorized:
+      description: Usuário não autenticado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "UNAUTHORIZED"
+              message:
+                type: string
+                example: "Usuário não autenticado"
+
+    InternalServerError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "INTERNAL_SERVER_ERROR"
+              message:
+                type: string
+                example: "Erro interno do servidor"
+
+  securitySchemes:
+    NextAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: NextAuth.js JWT token
