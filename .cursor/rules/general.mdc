@@ -54,3 +54,25 @@ A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a vers
 
 - **Consulta Obrigatória**: Antes de iniciar QUALQUER tarefa que interaja com uma dessas bibliotecas, o desenvolvedor (ou a IA) DEVE consultar a documentação oficial mais recente para garantir o uso das APIs e padrões recomendados. Utilize o `Context7` para obter a documentação atualizada.
 - **Versões**: As versões exatas devem ser gerenciadas pelo `package.json`, mas o desenvolvimento deve se basear nas práticas da última versão estável.
+
+## Workflow de Commits
+
+### 1. Commits Atômicos e Descritivos
+
+- **Frequência**: Ao final de CADA interação bem-sucedida com a IA que resultar em modificação ou criação de arquivos, um commit DEVE ser realizado.
+- **Qualidade da Mensagem**: Cada commit DEVE ter uma mensagem clara e descritiva, seguindo o padrão **Conventional Commits**.
+- **Estrutura**:
+
+  - **Header**: `type(scope): short description` (ex: `docs(spec): adiciona autenticação à user story`)
+  - **Body (Opcional, mas recomendado)**: Explica o _quê_ e o _porquê_ da mudança.
+  - **Exemplo**:
+
+    ```
+    docs(plan): atualiza arquitetura para full-stack
+
+    Refatora completamente o plano de implementação e o plano de tarefas para refletir a nova arquitetura com Next.js, PostgreSQL e NextAuth.
+
+    - Altera o `plan.md` para descrever a stack de backend.
+    - Reescreve o `tasks.md` com novas fases para setup de DB, auth e backend.
+    - Atualiza o `research.md` com decisões sobre Prisma e Docker.
+    ```
