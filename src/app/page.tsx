@@ -1,11 +1,15 @@
-import { Calculator } from "@/components/calculator/Calculator"
-import { SignInButton, SignOutButton } from "@/components/auth"
-import { getHistory } from "@/actions/history"
-import { auth } from "@/lib/auth"
+"use client";
 
-export default async function HomePage() {
-  const session = await auth()
-  const history = session?.user?.id ? await getHistory() : null
+import { useState } from "react";
+import { Calculator } from "@/components/calculator/Calculator"
+import { HistoryPanel } from "@/components/calculator/HistoryPanel"
+import { SignInButton, SignOutButton } from "@/components/auth"
+import { HistoryTreeData } from "@/types/calculator"
+import { useSession } from "next-auth/react"
+
+export default function HomePage() {
+  const { data: session } = useSession();
+  const [history, setHistory] = useState<HistoryTreeData | null>(null);
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -41,8 +45,12 @@ export default async function HomePage() {
           </div>
         </header>
 
-        <main className="flex justify-center">
-          <Calculator initialHistory={history || undefined} />
+        <main className="flex justify-center gap-6 max-w-6xl mx-auto">
+          <Calculator 
+            initialHistory={history || undefined} 
+            onHistoryChange={setHistory}
+          />
+          <HistoryPanel history={history} className="w-80" />
         </main>
 
         {!session?.user && (
