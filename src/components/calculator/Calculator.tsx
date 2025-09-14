@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { CalculatorDisplay } from "./CalculatorDisplay"
 import { CalculatorButton } from "./CalculatorButton"
-import { CalculatorCore } from "@/core/calculator"
+import { Calculator as CalculatorCore } from "@/core/calculator"
 import { HistoryTreeData } from "@/types/calculator"
 import { saveHistory } from "@/actions/history"
 import { useSession } from "next-auth/react"
@@ -14,18 +14,14 @@ interface CalculatorProps {
 
 export function Calculator({ initialHistory }: CalculatorProps) {
   const { data: session } = useSession()
-  const [calculator] = useState(() => new CalculatorCore(initialHistory))
   const [expression, setExpression] = useState("")
   const [result, setResult] = useState(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
     setIsAuthenticated(!!session?.user)
-    if (initialHistory) {
-      setExpression(calculator.getCurrentExpression())
-      setResult(calculator.getCurrentResult())
-    }
-  }, [session, initialHistory, calculator])
+    // TODO: Implementar integração com histórico quando necessário
+  }, [session])
 
   const handleButtonClick = async (value: string) => {
     try {
@@ -36,20 +32,22 @@ export function Calculator({ initialHistory }: CalculatorProps) {
           newExpression = ""
           break
         case "AC":
-          calculator.clearAll()
           newExpression = ""
           setResult(0)
           break
         case "=":
           if (newExpression) {
-            const newTree = calculator.evaluateExpression(newExpression)
-            setResult(calculator.getCurrentResult())
-            setExpression("")
+            // Usar nossa nova API de cálculo
+            const calculationResult = CalculatorCore.calculate(newExpression)
+            setResult(calculationResult.result)
             
-            // Save to database if authenticated
-            if (isAuthenticated) {
-              await saveHistory(newTree)
-            }
+            // Substituir expressão pelo resultado (comportamento da feature)
+            setExpression(calculationResult.result.toString())
+            
+            // TODO: Salvar no histórico quando implementarmos a integração
+            // if (isAuthenticated) {
+            //   await saveHistory(calculationResult)
+            // }
           }
           break
         default:
@@ -57,10 +55,12 @@ export function Calculator({ initialHistory }: CalculatorProps) {
           break
       }
 
-      setExpression(newExpression)
+      if (value !== "=") {
+        setExpression(newExpression)
+      }
     } catch (error) {
       console.error("Calculator error:", error)
-      // Handle error (could show a toast or error message)
+      // TODO: Mostrar erro para o usuário
     }
   }
 

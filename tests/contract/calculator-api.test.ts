@@ -128,7 +128,9 @@ describe("Calculator API Contract Tests", () => {
 
   describe("GET /calculator/history", () => {
     it("should return history entries with pagination", async () => {
-      const response = await fetch(`${API_BASE_URL}/calculator/history?page=1&limit=20`);
+      const response = await fetch(
+        `${API_BASE_URL}/calculator/history?page=1&limit=20`
+      );
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -144,7 +146,9 @@ describe("Calculator API Contract Tests", () => {
     });
 
     it("should return history entries for specific user", async () => {
-      const response = await fetch(`${API_BASE_URL}/calculator/history?userId=user123&page=1&limit=10`);
+      const response = await fetch(
+        `${API_BASE_URL}/calculator/history?userId=user123&page=1&limit=10`
+      );
 
       expect(response.status).toBe(200);
       const data = await response.json();
@@ -158,7 +162,9 @@ describe("Calculator API Contract Tests", () => {
     });
 
     it("should handle pagination correctly", async () => {
-      const response = await fetch(`${API_BASE_URL}/calculator/history?page=2&limit=5`);
+      const response = await fetch(
+        `${API_BASE_URL}/calculator/history?page=2&limit=5`
+      );
 
       expect(response.status).toBe(200);
       const data = await response.json();

@@ -14,22 +14,22 @@ export class ExpressionValidator {
     const trimmed = expression.trim();
 
     // Verificar se está vazia
-    if (trimmed === '') {
+    if (trimmed === "") {
       return {
         isValid: false,
-        message: 'Expressão não pode estar vazia',
-        position: 0
+        message: "Expressão não pode estar vazia",
+        position: 0,
       };
     }
 
     // Verificar caracteres válidos
     if (!this.VALID_CHARS_REGEX.test(trimmed)) {
       const invalidChar = trimmed.match(/[^0-9+\-*/().\s]/)?.[0];
-      const position = trimmed.indexOf(invalidChar || '');
+      const position = trimmed.indexOf(invalidChar || "");
       return {
         isValid: false,
         message: `Expressão contém caracteres inválidos: '${invalidChar}'`,
-        position
+        position,
       };
     }
 
@@ -49,29 +49,29 @@ export class ExpressionValidator {
     if (!this.hasNumber(trimmed)) {
       return {
         isValid: false,
-        message: 'Expressão deve conter pelo menos um número',
-        position: 0
+        message: "Expressão deve conter pelo menos um número",
+        position: 0,
       };
     }
 
     return {
       isValid: true,
-      message: 'Expressão válida'
+      message: "Expressão válida",
     };
   }
 
   private static validateParentheses(expression: string): ValidationResult {
     let count = 0;
     for (let i = 0; i < expression.length; i++) {
-      if (expression[i] === '(') {
+      if (expression[i] === "(") {
         count++;
-      } else if (expression[i] === ')') {
+      } else if (expression[i] === ")") {
         count--;
         if (count < 0) {
           return {
             isValid: false,
-            message: 'Parênteses desbalanceados',
-            position: i
+            message: "Parênteses desbalanceados",
+            position: i,
           };
         }
       }
@@ -80,18 +80,18 @@ export class ExpressionValidator {
     if (count > 0) {
       return {
         isValid: false,
-        message: 'Parênteses não fechados',
-        position: expression.length - 1
+        message: "Parênteses não fechados",
+        position: expression.length - 1,
       };
     }
 
-    return { isValid: true, message: 'Parênteses válidos' };
+    return { isValid: true, message: "Parênteses válidos" };
   }
 
   private static validateOperators(expression: string): ValidationResult {
     // Remover espaços para análise
-    const cleanExpression = expression.replace(/\s/g, '');
-    
+    const cleanExpression = expression.replace(/\s/g, "");
+
     // Verificar operadores consecutivos
     for (let i = 0; i < cleanExpression.length - 1; i++) {
       const current = cleanExpression[i];
@@ -100,8 +100,8 @@ export class ExpressionValidator {
       if (this.OPERATOR_REGEX.test(current) && this.OPERATOR_REGEX.test(next)) {
         return {
           isValid: false,
-          message: 'Operadores consecutivos não são permitidos',
-          position: i + 1
+          message: "Operadores consecutivos não são permitidos",
+          position: i + 1,
         };
       }
     }
@@ -111,12 +111,12 @@ export class ExpressionValidator {
       const current = cleanExpression[i];
       const previous = cleanExpression[i - 1];
 
-      if (this.OPERATOR_REGEX.test(current) && current !== '-') {
-        if (this.OPERATOR_REGEX.test(previous) || previous === '(') {
+      if (this.OPERATOR_REGEX.test(current) && current !== "-") {
+        if (this.OPERATOR_REGEX.test(previous) || previous === "(") {
           return {
             isValid: false,
             message: `Operador '${current}' sem operando à esquerda`,
-            position: i
+            position: i,
           };
         }
       }
@@ -128,11 +128,11 @@ export class ExpressionValidator {
       return {
         isValid: false,
         message: `Expressão não pode terminar com operador '${lastChar}'`,
-        position: cleanExpression.length - 1
+        position: cleanExpression.length - 1,
       };
     }
 
-    return { isValid: true, message: 'Operadores válidos' };
+    return { isValid: true, message: "Operadores válidos" };
   }
 
   private static hasNumber(expression: string): boolean {
