@@ -1,25 +1,23 @@
-export interface HistoryEntryDTO {
+export interface HistoryEntry {
   id: string;
-  timestamp: string; // ISO string
+  userId: string;
   expression: string;
-  result: number;
-  executionTime: number;
-  userId?: string;
+  result: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface HistoryEntryRequest {
   expression: string;
-  result: number;
-  executionTime: number;
-  userId?: string;
+  result: string;
 }
 
 export interface HistoryResponse {
-  entries: HistoryEntryDTO[];
+  data: HistoryEntry[];
   pagination: {
-    page: number;
-    limit: number;
     total: number;
-    totalPages: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
   };
 }

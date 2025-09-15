@@ -44,7 +44,7 @@ Simplificar a estrutura da calculadora removendo toda funcionalidade de branches
 **Tipo de Projeto**: web (frontend + backend)  
 **Metas de Performance**: <200ms para operações de histórico, interface responsiva  
 **Restrições**: Manter compatibilidade com dados existentes, migração segura  
-**Escala/Escopo**: Histórico linear simples, sem estrutura de árvore  
+**Escala/Escopo**: Histórico linear simples, sem estrutura de árvore
 
 ## Verificação da Constituição
 
@@ -164,7 +164,7 @@ _Pré-requisito: research.md concluído_
 
 2. **Gerar contratos de API** a partir dos requisitos funcionais:
 
-   - Remoção de endpoints de branches (/api/calculator/branches/*)
+   - Remoção de endpoints de branches (/api/calculator/branches/\*)
    - Simplificação de endpoint de histórico (/api/calculator/history)
    - Manutenção de endpoints de cálculo e validação
 
@@ -185,7 +185,7 @@ _Pré-requisito: research.md concluído_
    - Preservar adições manuais entre marcadores
    - Manter abaixo de 150 linhas para eficiência de tokens
 
-**Saída**: data-model.md, /contracts/*, testes falhando, quickstart.md, arquivo específico do agente
+**Saída**: data-model.md, /contracts/\*, testes falhando, quickstart.md, arquivo específico do agente
 
 ## Fase 2: Abordagem de Planejamento de Tarefas
 
@@ -222,9 +222,9 @@ _Estas fases estão além do escopo do comando /plan_
 
 _Preencher APENAS se a Verificação da Constituição tiver violações que precisem ser justificadas_
 
-| Violação                 | Por que é necessário  | Alternativa mais simples rejeitada porque    |
-| ------------------------ | --------------------- | -------------------------------------------- |
-| [Nenhuma violação detectada] | [N/A] | [N/A] |
+| Violação                     | Por que é necessário | Alternativa mais simples rejeitada porque |
+| ---------------------------- | -------------------- | ----------------------------------------- |
+| [Nenhuma violação detectada] | [N/A]                | [N/A]                                     |
 
 ## Rastreamento de Progresso
 

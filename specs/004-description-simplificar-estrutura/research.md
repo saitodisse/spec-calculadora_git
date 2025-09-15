@@ -10,18 +10,21 @@
 
 **Decisão**: Migração completa imediata
 
-**Justificativa**: 
+**Justificativa**:
+
 - Projeto é um POC sem usuários reais ou dados importantes para preservar
 - Simplifica drasticamente o processo de implementação
 - Elimina complexidade desnecessária de migração gradual
 - Permite refatoração completa da estrutura sem preocupações de compatibilidade
 
 **Alternativas consideradas**:
+
 - Migração gradual com preservação: Rejeitada por complexidade desnecessária em POC
 - Manter ambas as estruturas: Rejeitada por complexidade desnecessária
 - Migração por usuário: Rejeitada por inconsistência na experiência
 
 **Implementação**:
+
 - Criar nova migração Prisma que remove campos de branches completamente
 - Reset do banco de dados para estrutura limpa
 - Implementação direta da nova estrutura sem preservação de dados antigos
@@ -31,16 +34,19 @@
 **Decisão**: Remoção incremental com testes de regressão
 
 **Justificativa**:
+
 - Componentes complexos como HistoryPanel precisam de refatoração cuidadosa
 - Testes existentes devem ser adaptados para nova estrutura
 - Interface deve permanecer funcional durante a transição
 
 **Alternativas consideradas**:
+
 - Reescrever componentes do zero: Rejeitada por risco de introduzir bugs
 - Manter componentes com flags de feature: Rejeitada por complexidade
 - Refatoração completa de uma vez: Rejeitada por dificuldade de debug
 
 **Implementação**:
+
 - Remover props e estados relacionados a branches
 - Simplificar lógica de renderização
 - Atualizar testes para nova estrutura linear
@@ -50,16 +56,19 @@
 **Decisão**: Otimização de queries com remoção de índices desnecessários
 
 **Justificativa**:
+
 - Estrutura linear é mais simples e performática
 - Menos joins e consultas complexas
 - Índices de branches podem ser removidos
 
 **Alternativas consideradas**:
+
 - Manter índices para compatibilidade: Rejeitada por overhead desnecessário
 - Criar novos índices para estrutura linear: Considerada, mas não necessária inicialmente
 - Otimização prematura: Rejeitada por princípio YAGNI
 
 **Implementação**:
+
 - Remover índices relacionados a branches do schema Prisma
 - Simplificar queries de histórico para busca linear
 - Monitorar performance após migração
@@ -69,17 +78,20 @@
 **Decisão**: Remoção imediata de APIs de branches
 
 **Justificativa**:
+
 - POC não tem clientes externos que dependam das APIs
 - Simplifica implementação removendo endpoints desnecessários
 - Elimina complexidade de versionamento e deprecação
 - Permite implementação limpa da nova estrutura
 
 **Alternativas consideradas**:
+
 - Deprecação gradual com versionamento: Rejeitada por complexidade desnecessária em POC
 - Manter APIs indefinidamente: Rejeitada por complexidade
 - Criação de novas APIs paralelas: Rejeitada por duplicação
 
 **Implementação**:
+
 - Remover completamente endpoints de branches
 - Implementar apenas APIs necessárias para estrutura linear
 - Documentar mudanças na API
@@ -89,16 +101,19 @@
 **Decisão**: Schema Prisma linear sem campos de branches
 
 **Justificativa**:
+
 - Estrutura mais simples e fácil de manter
 - Menos campos para validar e processar
 - Alinhado com princípio de simplicidade
 
 **Alternativas consideradas**:
+
 - Manter campos como nullable: Rejeitada por confusão
 - Criar nova tabela para histórico linear: Rejeitada por complexidade
 - Estrutura híbrida: Rejeitada por inconsistência
 
 **Implementação**:
+
 - Remover campos `branchId`, `parentId`, `branchName` do schema
 - Simplificar relacionamentos entre entidades
 - Atualizar tipos TypeScript correspondentes
@@ -106,14 +121,17 @@
 ## Riscos Identificados
 
 ### Alto Risco
+
 - **Quebra de funcionalidade existente**: Mitigado com testes abrangentes
 - **Perda de dados de desenvolvimento**: Mitigado com documentação de mudanças
 
 ### Médio Risco
+
 - **Performance degradada**: Mitigado com monitoramento
 - **Bugs em componentes refatorados**: Mitigado com testes de regressão
 
 ### Baixo Risco
+
 - **Tempo de desenvolvimento**: Mitigado com implementação direta
 - **Complexidade de rollback**: Não aplicável em POC
 

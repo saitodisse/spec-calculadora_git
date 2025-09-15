@@ -2,9 +2,9 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { HistoryTreeData } from "@/types/calculator";
+import { HistoryEntry, HistoryResponse } from "@/types/history";
 
-export async function getHistory(): Promise<HistoryTreeData | null> {
+export async function getHistory(limit: number = 20, offset: number = 0): Promise<HistoryResponse | null> {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -12,37 +12,40 @@ export async function getHistory(): Promise<HistoryTreeData | null> {
   }
 
   try {
-    const historyTree = await prisma.historyTree.findUnique({
-      where: {
-        userId: session.user.id,
-      },
-    });
-
-    if (!historyTree) {
-      // Return default empty history tree
-      return {
-        nodes: {
-          root: {
-            id: "root",
-            parentId: null,
-            timestamp: Date.now(),
-            expression: "0",
-            result: 0,
-          },
+    const [histories, total] = await Promise.all([
+      prisma.history.findMany({
+        where: {
+          userId: session.user.id,
         },
-        head: "root",
-        branches: {},
-      };
-    }
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: limit,
+        skip: offset,
+      }),
+      prisma.history.count({
+        where: {
+          userId: session.user.id,
+        },
+      }),
+    ]);
 
-    return historyTree.data as unknown as HistoryTreeData;
+    return {
+      data: histories,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + histories.length < total,
+      },
+    };
   } catch (error) {
     console.error("Error getting history:", error);
     return null;
   }
 }
 
-export async function saveHistory(tree: HistoryTreeData): Promise<void> {
+export async function saveHistory(expression: string, result: string): Promise<HistoryEntry | null> {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -50,18 +53,15 @@ export async function saveHistory(tree: HistoryTreeData): Promise<void> {
   }
 
   try {
-    await prisma.historyTree.upsert({
-      where: {
+    const historyEntry = await prisma.history.create({
+      data: {
         userId: session.user.id,
-      },
-      update: {
-        data: tree as unknown as any,
-      },
-      create: {
-        userId: session.user.id,
-        data: tree as unknown as any,
+        expression,
+        result,
       },
     });
+
+    return historyEntry;
   } catch (error) {
     console.error("Error saving history:", error);
     throw new Error("Failed to save history");

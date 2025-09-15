@@ -64,10 +64,12 @@ pnpm dev
 #### ✅ Painel de Histórico Simplificado
 
 1. **Verificar ausência do botão "Árvore"**
+
    - O painel de histórico deve mostrar apenas uma lista linear
    - Não deve haver botão "🌳 Árvore" na interface
 
 2. **Verificar lista linear de expressões**
+
    - Histórico deve ser exibido como lista simples
    - Entradas ordenadas por data (mais recente primeiro)
    - Cada entrada mostra: expressão → resultado
@@ -80,6 +82,7 @@ pnpm dev
 #### ✅ Funcionalidade de Cálculo
 
 1. **Realizar cálculos simples**
+
    ```
    Teste 1: 2 + 2 = 4
    Teste 2: 3 * 4 = 12
@@ -87,6 +90,7 @@ pnpm dev
    ```
 
 2. **Verificar adição ao histórico**
+
    - Cada cálculo deve aparecer no topo da lista
    - Histórico deve crescer linearmente
    - Não deve haver estrutura de árvore
@@ -192,8 +196,8 @@ psql postgresql://postgres:password@localhost:5433/calculator
 \d histories
 
 -- Verificar ausência de campos de branches
-SELECT column_name, data_type 
-FROM information_schema.columns 
+SELECT column_name, data_type
+FROM information_schema.columns
 WHERE table_name = 'histories';
 ```
 
@@ -202,7 +206,7 @@ WHERE table_name = 'histories';
 ```sql
 -- Inserir dados de teste
 INSERT INTO histories (id, user_id, expression, result, created_at, updated_at)
-VALUES 
+VALUES
   ('test-1', 'user-123', '2 + 2', '4', NOW(), NOW()),
   ('test-2', 'user-123', '3 * 4', '12', NOW(), NOW());
 
@@ -258,6 +262,7 @@ SELECT * FROM histories ORDER BY created_at DESC;
 ### Problemas Comuns
 
 1. **Erro de migração do banco**
+
    ```bash
    # Reset do banco e reaplicar migração
    pnpm db:reset
@@ -265,6 +270,7 @@ SELECT * FROM histories ORDER BY created_at DESC;
    ```
 
 2. **Componentes não carregando**
+
    ```bash
    # Limpar cache e reinstalar
    rm -rf node_modules
@@ -297,12 +303,14 @@ pnpm test --verbose
 Após validação bem-sucedida:
 
 1. **Commit das mudanças**
+
    ```bash
    git add .
    git commit -m "feat: implementa estrutura simplificada sem branches"
    ```
 
 2. **Deploy para ambiente de teste**
+
    ```bash
    # Configurar deploy para Vercel ou outro provedor
    ```
