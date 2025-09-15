@@ -4,7 +4,10 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { HistoryEntry, HistoryResponse } from "@/types/history";
 
-export async function getHistory(limit: number = 20, offset: number = 0): Promise<HistoryResponse | null> {
+export async function getHistory(
+  limit: number = 20,
+  offset: number = 0
+): Promise<HistoryResponse | null> {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -18,7 +21,7 @@ export async function getHistory(limit: number = 20, offset: number = 0): Promis
           userId: session.user.id,
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: "desc",
         },
         take: limit,
         skip: offset,
@@ -45,7 +48,10 @@ export async function getHistory(limit: number = 20, offset: number = 0): Promis
   }
 }
 
-export async function saveHistory(expression: string, result: string): Promise<HistoryEntry | null> {
+export async function saveHistory(
+  expression: string,
+  result: string
+): Promise<HistoryEntry | null> {
   const session = await auth();
 
   if (!session?.user?.id) {

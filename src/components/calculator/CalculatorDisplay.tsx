@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 
 interface CalculatorDisplayProps {
   expression: string;
-  result: number;
+  result: string;
   onExpressionChange: (expression: string) => void;
   onCalculate: () => void;
   className?: string;

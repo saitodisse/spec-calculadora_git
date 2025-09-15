@@ -4,39 +4,29 @@ import { useState, useEffect } from "react";
 import { CalculatorDisplay } from "./CalculatorDisplay";
 import { CalculatorButton } from "./CalculatorButton";
 import { Calculator as CalculatorCore } from "@/core/calculator";
-import { HistoryTreeData } from "@/types/calculator";
-import { saveHistory } from "@/actions/history";
 import { useSession } from "next-auth/react";
 
 interface CalculatorProps {
-  initialHistory?: HistoryTreeData;
-  onHistoryChange?: (history: HistoryTreeData) => void;
   onExpressionChange?: (expression: string) => void;
   externalExpression?: string;
 }
 
 export function Calculator({
-  initialHistory,
-  onHistoryChange,
   onExpressionChange,
   externalExpression,
 }: CalculatorProps) {
   const { data: session } = useSession();
   const [expression, setExpression] = useState("");
-  const [result, setResult] = useState(0);
+  const [result, setResult] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [localHistory, setLocalHistory] = useState<HistoryTreeData | null>(
-    initialHistory || null
-  );
 
   useEffect(() => {
     setIsAuthenticated(!!session?.user);
-    setLocalHistory(initialHistory || null);
 
     if (process.env.NODE_ENV === "development") {
-      console.log("🔍 [Calculator] Initial history loaded:", initialHistory);
+      console.log("🔍 [Calculator] Session updated:", session?.user?.email);
     }
-  }, [session, initialHistory]);
+  }, [session]);
 
   // Sincronizar com mudanças externas na expressão (ex: clique no histórico)
   useEffect(() => {
@@ -71,48 +61,34 @@ export function Calculator({
 
       // Usar nossa nova API de cálculo
       const calculationResult = CalculatorCore.calculate(expression);
-      setResult(calculationResult.result);
+      const resultString = calculationResult.result.toString();
+      setResult(resultString);
 
       // Substituir expressão pelo resultado (comportamento da feature)
-      setExpression(calculationResult.result.toString());
-
-      // Adicionar ao histórico local
-      const newHistoryEntry = {
-        id: `calc_${Date.now()}`,
-        parentId: localHistory?.head || null,
-        timestamp: Date.now(),
-        expression: expression,
-        result: calculationResult.result,
-      };
-
-      const updatedHistory: HistoryTreeData = {
-        nodes: {
-          ...(localHistory?.nodes || {}),
-          [newHistoryEntry.id]: newHistoryEntry,
-        },
-        head: newHistoryEntry.id,
-        branches: localHistory?.branches || {},
-      };
-
-      setLocalHistory(updatedHistory);
-      onHistoryChange?.(updatedHistory);
-
-      if (process.env.NODE_ENV === "development") {
-        console.debug("🔍 [Calculator] Added to history:", newHistoryEntry);
-        console.debug("🔍 [Calculator] Updated history state:", updatedHistory);
-      }
+      setExpression(resultString);
 
       // Salvar no servidor se autenticado
       if (isAuthenticated) {
         try {
-          await saveHistory(updatedHistory);
+          const response = await fetch('/api/calculator/calculate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              expression: expression,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Erro ao salvar cálculo');
+          }
+
           if (process.env.NODE_ENV === "development") {
-            console.debug(
-              "🔍 [Calculator] History saved to server successfully"
-            );
+            console.debug("🔍 [Calculator] Calculation saved to server successfully");
           }
         } catch (error) {
-          console.error("🔍 [Calculator] Failed to save history:", error);
+          console.error("🔍 [Calculator] Failed to save calculation:", error);
         }
       }
     } catch (error) {
@@ -131,7 +107,7 @@ export function Calculator({
           break;
         case "AC":
           newExpression = "";
-          setResult(0);
+          setResult("");
           break;
         case "=":
           await handleCalculate();
