@@ -22,17 +22,17 @@ export function HistoryPanel({
     const fetchHistory = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/calculator/history');
-        
+        const response = await fetch("/api/calculator/history");
+
         if (!response.ok) {
-          throw new Error('Erro ao carregar histórico');
+          throw new Error("Erro ao carregar histórico");
         }
-        
+
         const data = await response.json();
         setHistory(data.data || []);
       } catch (err) {
-        console.error('Erro ao carregar histórico:', err);
-        setError(err instanceof Error ? err.message : 'Erro desconhecido');
+        console.error("Erro ao carregar histórico:", err);
+        setError(err instanceof Error ? err.message : "Erro desconhecido");
       } finally {
         setLoading(false);
       }
@@ -46,7 +46,10 @@ export function HistoryPanel({
       onHistoryItemClick(expression);
 
       if (process.env.NODE_ENV === "development") {
-        console.debug("🔍 [HistoryPanel] Item clicked, setting expression:", expression);
+        console.debug(
+          "🔍 [HistoryPanel] Item clicked, setting expression:",
+          expression
+        );
       }
     }
   };
