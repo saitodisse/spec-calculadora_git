@@ -61,7 +61,7 @@ A implementação DEVE utilizar as seguintes tecnologias, sempre buscando a vers
 #### Banco de Dados
 
 - **PostgreSQL 15** via Docker Compose na porta **5433**
-- **Prisma ORM** com schema configurado para NextAuth + HistoryTree
+- **Prisma ORM** com schema configurado para NextAuth + Histórico Linear
 - **Migrações**: Comandos `pnpm db:migrate`, `pnpm db:generate`, `pnpm db:studio`
 - **URL de Conexão**: `DATABASE_URL` no `.env.local`
 
@@ -198,7 +198,7 @@ pnpm db:migrate
 
 ### 001-site-git-calc
 
-- ✅ Calculadora com histórico ramificado
+- ✅ Calculadora com histórico linear simples
 - ✅ Autenticação Google via NextAuth
 - ✅ Persistência de dados via PostgreSQL
 - ✅ Interface responsiva com Shadcn UI
@@ -210,6 +210,13 @@ pnpm db:migrate
 - ✅ Histórico em formato texto simples
 - ✅ Debug logging em modo desenvolvimento
 - ✅ Substituição de expressão por resultado após cálculo
+
+### 004-description-simplificar-estrutura
+
+- ✅ Remoção completa da funcionalidade de branches/ramos
+- ✅ Interface simplificada com lista linear de histórico
+- ✅ Remoção do botão "Árvore" e funcionalidades relacionadas
+- ✅ Estrutura de dados simplificada sem campos de branches
 
 ## Considerações de Segurança
 
