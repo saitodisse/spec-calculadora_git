@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 interface HistoryPanelProps {
   onHistoryItemClick?: (expression: string) => void;
   className?: string;
+  refreshTrigger?: number; // Trigger para forçar refresh do histórico
 }
 
 export function HistoryPanel({
   onHistoryItemClick,
   className,
+  refreshTrigger,
 }: HistoryPanelProps) {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +41,7 @@ export function HistoryPanel({
     };
 
     fetchHistory();
-  }, []);
+  }, [refreshTrigger]); // Adicionar refreshTrigger como dependência
 
   const handleItemClick = (expression: string) => {
     if (onHistoryItemClick) {

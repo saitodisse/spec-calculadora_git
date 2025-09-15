@@ -9,11 +9,13 @@ import { useSession } from "next-auth/react";
 interface CalculatorProps {
   onExpressionChange?: (expression: string) => void;
   externalExpression?: string;
+  onCalculationComplete?: () => void; // Callback para notificar que um cálculo foi concluído
 }
 
 export function Calculator({
   onExpressionChange,
   externalExpression,
+  onCalculationComplete,
 }: CalculatorProps) {
   const { data: session } = useSession();
   const [expression, setExpression] = useState("");
@@ -91,6 +93,9 @@ export function Calculator({
           console.error("🔍 [Calculator] Failed to save calculation:", error);
         }
       }
+
+      // Notificar que o cálculo foi concluído
+      onCalculationComplete?.();
     } catch (error) {
       console.error("Calculator error:", error);
       // TODO: Mostrar erro para o usuário

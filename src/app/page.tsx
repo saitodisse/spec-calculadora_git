@@ -12,6 +12,7 @@ export default function HomePage() {
   const { data: session } = useSession();
   const [history, setHistory] = useState<HistoryTreeData | null>(null);
   const [currentExpression, setCurrentExpression] = useState<string>("");
+  const [historyRefreshTrigger, setHistoryRefreshTrigger] = useState<number>(0);
 
   // Carregar histórico quando o usuário fizer login
   useEffect(() => {
@@ -63,6 +64,15 @@ export default function HomePage() {
     }
   };
 
+  const handleCalculationComplete = () => {
+    // Incrementar o trigger para forçar refresh do histórico
+    setHistoryRefreshTrigger(prev => prev + 1);
+    
+    if (process.env.NODE_ENV === "development") {
+      console.debug("🔍 [HomePage] Calculation completed, refreshing history");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="container mx-auto px-4">
@@ -103,11 +113,13 @@ export default function HomePage() {
             onHistoryChange={setHistory}
             onExpressionChange={setCurrentExpression}
             externalExpression={currentExpression}
+            onCalculationComplete={handleCalculationComplete}
           />
           <HistoryPanel
             history={history}
             onHistoryItemClick={setCurrentExpression}
             onBranchName={handleBranchName}
+            refreshTrigger={historyRefreshTrigger}
             className="w-80"
           />
         </main>
