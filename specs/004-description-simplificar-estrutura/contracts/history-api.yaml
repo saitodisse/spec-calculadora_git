@@ -1,0 +1,306 @@
+openapi: 3.0.3
+info:
+  title: Calculator History API
+  description: API simplificada para histórico de cálculos sem branches/ramos
+  version: 2.0.0
+  contact:
+    name: Calculator Team
+    email: dev@calculator.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://calculator.vercel.app/api
+    description: Production server
+
+paths:
+  /calculator/history:
+    get:
+      summary: Obter histórico de cálculos do usuário
+      description: Retorna lista linear de expressões calculadas pelo usuário autenticado
+      tags:
+        - History
+      security:
+        - NextAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: Número máximo de entradas a retornar
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          description: Número de entradas a pular
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Lista de entradas do histórico
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HistoryEntry'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Adicionar entrada ao histórico
+      description: Adiciona uma nova expressão calculada ao histórico do usuário
+      tags:
+        - History
+      security:
+        - NextAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - expression
+                - result
+              properties:
+                expression:
+                  type: string
+                  description: Expressão matemática calculada
+                  example: "2 + 2"
+                result:
+                  type: string
+                  description: Resultado do cálculo
+                  example: "4"
+      responses:
+        '201':
+          description: Entrada criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /calculator/calculate:
+    post:
+      summary: Calcular expressão matemática
+      description: Calcula uma expressão matemática e adiciona ao histórico
+      tags:
+        - Calculator
+      security:
+        - NextAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - expression
+              properties:
+                expression:
+                  type: string
+                  description: Expressão matemática a ser calculada
+                  example: "2 + 2 * 3"
+      responses:
+        '200':
+          description: Cálculo realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expression:
+                    type: string
+                    example: "2 + 2 * 3"
+                  result:
+                    type: string
+                    example: "8"
+                  historyEntry:
+                    $ref: '#/components/schemas/HistoryEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /calculator/validate:
+    post:
+      summary: Validar expressão matemática
+      description: Valida se uma expressão matemática é válida sem calculá-la
+      tags:
+        - Calculator
+      security:
+        - NextAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - expression
+              properties:
+                expression:
+                  type: string
+                  description: Expressão matemática a ser validada
+                  example: "2 + 2 * 3"
+      responses:
+        '200':
+          description: Validação realizada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expression:
+                    type: string
+                    example: "2 + 2 * 3"
+                  isValid:
+                    type: boolean
+                    example: true
+                  error:
+                    type: string
+                    example: null
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    HistoryEntry:
+      type: object
+      required:
+        - id
+        - userId
+        - expression
+        - result
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          description: Identificador único da entrada
+          example: "clr1234567890"
+        userId:
+          type: string
+          description: ID do usuário proprietário
+          example: "user_123"
+        expression:
+          type: string
+          description: Expressão matemática original
+          example: "2 + 2"
+        result:
+          type: string
+          description: Resultado do cálculo
+          example: "4"
+        createdAt:
+          type: string
+          format: date-time
+          description: Data de criação
+          example: "2025-01-27T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Data de última atualização
+          example: "2025-01-27T10:30:00Z"
+
+    Pagination:
+      type: object
+      required:
+        - total
+        - limit
+        - offset
+        - hasMore
+      properties:
+        total:
+          type: integer
+          description: Número total de entradas
+          example: 150
+        limit:
+          type: integer
+          description: Limite de entradas por página
+          example: 20
+        offset:
+          type: integer
+          description: Número de entradas puladas
+          example: 0
+        hasMore:
+          type: boolean
+          description: Se há mais entradas disponíveis
+          example: true
+
+    Error:
+      type: object
+      required:
+        - message
+        - code
+      properties:
+        message:
+          type: string
+          description: Mensagem de erro
+          example: "Expressão inválida"
+        code:
+          type: string
+          description: Código do erro
+          example: "INVALID_EXPRESSION"
+        details:
+          type: object
+          description: Detalhes adicionais do erro
+          example: {"field": "expression", "value": "2 +"}
+
+  responses:
+    BadRequest:
+      description: Requisição inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Usuário não autenticado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Erro interno do servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    NextAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Autenticação via NextAuth.js
+
+tags:
+  - name: History
+    description: Operações relacionadas ao histórico de cálculos
+  - name: Calculator
+    description: Operações de cálculo e validação
